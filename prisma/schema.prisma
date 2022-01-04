@@ -15,3 +15,88 @@ model User {
   email String  @unique
   name  String?
 }
+
+model Video {
+  id  String  @id
+  snippet VideoSnippet[]
+  contentDetails Details[]
+  status Status[]
+  statistics VideoStats[]
+  liveStreamingDetails Stream[]
+}
+
+model VideoSnippet {
+  videobirth DateTime
+  chanid String
+  videoname String
+  videodescription String
+  videothumbnail VideoThumbnail[]
+  tags String[]
+  categoryid String
+  broadcast String
+}
+
+model VideoThumbnail {
+  videothumbnailimg String
+  videothumbnailwidth Int
+  videothumbnailheight Int
+}
+
+model Details {
+  videolenghth String
+  videodim String
+  captions String
+  videoTM Boolean
+  freedom String[]
+  censor String[]
+  protecttheyouth String
+  videoproj String
+}
+
+model Status {
+  videoprivacy String
+  videolicense String
+  videokid Boolean
+}
+
+model VideoStats {
+  videoviewcount BigInt
+  videolikecount BigInt
+  videocommentcount BigInt
+}
+
+model Stream {
+  liverealstart DateTime
+  liverealend DateTime
+  liveschedstart DateTime
+  liveschedend DateTime
+}
+
+model Channel {
+  id  Int  @id
+  snippet ChannelSnippet[]
+  statistics ChannelStats[]
+}
+
+model ChannelSnippet {
+  chanbirth DateTime
+  channame String
+  chandescription String
+  chanurl String
+  chancountry String
+  chanlang String
+  channelthumbnail ChannelThumbnail[]
+}
+
+model ChannelThumbnail {
+  chanthumbnailimg String
+  chanthumbnailwidth Int
+  chanthumbnailheight Int
+}
+
+model ChannelStats {
+  chanviewcount BigInt
+  chansubcount BigInt
+  chanvideocount BigInt
+
+}

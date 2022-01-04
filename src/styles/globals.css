@@ -1,14 +1,35 @@
+:root {
+  --color-black: #000;
+  --color-white: #fff;
+  --color-light: #eee;
+  --color-dark: #C4C4C4;
+  --color-accent: #72D298;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    background-color: var(--color-white);
+    color: var(--color-black);
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline dotted var(--color-main-dark);
+  transition: .1s color;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  color: var(--color-main-dark);
 }
 
 * {

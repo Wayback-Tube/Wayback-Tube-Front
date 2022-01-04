@@ -6,9 +6,18 @@ const Login: NextPage = () => {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+        <form className={styles.form} action="." method="POST">
+          <Image
+            src="/img/logo.png"
+            alt="Wayback Logo"
+            width="1863"
+            height="510"
+          />
+          <input type="text" placeholder="Login..." name="login"/>
+          <input type="text" placeholder="Password..." name="password"/>
+          <input className={styles.button} type="submit" value="Connect"/>
+          <p>New to WayBack Tube?<br/><a href="#">Create an account</a></p>
+        </form>
       </main>
     </div>
   );

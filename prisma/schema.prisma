@@ -10,6 +10,8 @@ datasource db {
   url      = "file:./database.db"
 }
 
+// [NEXT AUTH]
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -32,3 +34,5 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+// [OUR TABLES]

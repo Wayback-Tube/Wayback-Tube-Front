@@ -21,10 +21,11 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String?   @unique
+  id            String       @id @default(cuid())
+  email         String?      @unique
   emailVerified DateTime?
   sessions      Session[]
+  collections   Collection[]
 }
 
 model VerificationToken {
@@ -36,3 +37,89 @@ model VerificationToken {
 }
 
 // [OUR TABLES]
+
+model Collection {
+  id     String                @id @default(cuid())
+  userId String
+  user   User                  @relation(fields: [userId], references: [id])
+  videos VideosOnCollections[]
+}
+
+model VideosOnCollections {
+  video        Video      @relation(fields: [videoId], references: [id])
+  videoId      String
+  collection   Collection @relation(fields: [collectionId], references: [id])
+  collectionId String
+
+  @@id([videoId, collectionId])
+}
+
+model Video {
+  // Properties from YouTube Data V3 API
+  id                     String                @id
+  title                  String
+  description            String
+  publishedAt            DateTime
+  channelId              String
+  channel                Channel               @relation(fields: [channelId], references: [id])
+  tags                   TagsOnVideos[]
+  defaultLanguage        String
+  category               String
+  duration               Int
+  is3D                   Boolean // contentDetails.dimension
+  is360                  Boolean // contentDetails.projection
+  isUnlisted             Boolean
+  isCC                   Boolean // status.license
+  isForKids              Boolean // status.madeForKids
+  viewCount              Int
+  likeCount              Int
+  commentCount           Int
+  liveActualStartTime    DateTime
+  liveActualEndTime      DateTime
+  liveScheduledStartTime DateTime
+  liveScheduledEndTime   DateTime
+  // Properties from YT-DLP
+  width                  Int
+  height                 Int
+  ext                    String
+  filesizeApprox         Int
+  fps                    Int
+  isHDR                  Boolean
+  vcodec                 String
+  acodec                 String
+  // Meta properties
+  archivedAt             DateTime              @default(now())
+  archivedBy             String
+  lastUpdatedAt          DateTime
+  collections            VideosOnCollections[]
+}
+
+model Tag {
+  id     String         @id @default(cuid())
+  name   String
+  videos TagsOnVideos[]
+}
+
+model TagsOnVideos {
+  video   Video  @relation(fields: [videoId], references: [id])
+  videoId String
+  tag     Tag    @relation(fields: [tagId], references: [id])
+  tagId   String
+
+  @@id([videoId, tagId])
+}
+
+model Channel {
+  id              String   @id
+  title           String
+  description     String
+  publishedAt     DateTime
+  customUrl       String
+  thumbnailUrl    String
+  thumbnailWidth  Int
+  thumbnailHeight Int
+  viewCount       Int
+  subscriberCount Int
+  videoCount      Int
+  videos          Video[]
+}

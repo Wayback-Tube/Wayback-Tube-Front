@@ -10,8 +10,25 @@ datasource db {
   url      = "file:./database.db"
 }
 
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  emailVerified DateTime?
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

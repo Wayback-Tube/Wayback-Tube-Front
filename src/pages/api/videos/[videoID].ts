@@ -54,9 +54,8 @@ export default async function handler(
         });
 
         if (prismaChannel.id === channel.id) {
-
           const defaultFileJson = fetchFileJson(youtubeVideo.id);
-         
+
           // Create the new channel in Prisma
           const video = YouTubeToPrismaVideo(
             youtubeVideo,
@@ -75,12 +74,18 @@ export default async function handler(
             downloadVideoArchive(video.id).then(() => {
               fileToUpdatePrisma(video.id);
             });
+          } else {
+            res.status(404).json(null);
           }
+        } else {
+          res.status(404).json(null);
         }
+      } else {
+        res.status(404).json(null);
       }
+    } else {
+      res.status(404).json(null);
     }
-
-    res.status(200).json(null);
   } else {
     res.status(404).json(null);
   }

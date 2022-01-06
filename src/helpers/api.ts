@@ -44,10 +44,10 @@ export type APIYouTubeVideo = {
   viewCount: number;
   likeCount: number;
   commentCount: number;
-  liveActualStartTime: Date;
-  liveActualEndTime: Date;
-  liveScheduledStartTime: Date;
-  liveScheduledEndTime: Date;
+  liveActualStartTime: Date | null;
+  liveActualEndTime: Date | null;
+  liveScheduledStartTime: Date | null;
+  liveScheduledEndTime: Date | null;
 };
 
 export type APIYtdlMeta = {
@@ -87,9 +87,9 @@ export function YouTubeToPrismaChannel(
     description: channel.snippet.description,
     publishedAt: new Date(channel.snippet.publishedAt),
     customUrl: channel.snippet.customUrl,
-    viewCount: channel.statistics.viewCount,
-    subscriberCount: channel.statistics.subscriberCount,
-    videoCount: channel.statistics.videoCount,
+    viewCount: parseInt(channel.statistics.viewCount),
+    subscriberCount: parseInt(channel.statistics.subscriberCount),
+    videoCount: parseInt(channel.statistics.videoCount),
   };
 }
 
@@ -112,9 +112,9 @@ export function YouTubeToPrismaVideo(
     isUnlisted: video.status.privacyStatus === "unlisted",
     isCC: video.status.license === "creativeCommon",
     isForKids: video.status.madeForKids,
-    viewCount: video.statistics.viewCount,
-    likeCount: video.statistics.likeCount,
-    commentCount: video.statistics.commentCount,
+    viewCount: parseInt(video.statistics.viewCount),
+    likeCount: parseInt(video.statistics.likeCount),
+    commentCount: parseInt(video.statistics.commentCount),
     liveActualStartTime: new Date(),
     liveActualEndTime: new Date(),
     liveScheduledStartTime: new Date(),
@@ -122,6 +122,7 @@ export function YouTubeToPrismaVideo(
     duration: file.duration,
     width: file.width,
     height: file.height,
+    subtitles: file.subtitles,
     filesize: file.filesize,
     fps: file.fps,
     isHDR: file.isHDR,

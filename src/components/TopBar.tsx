@@ -5,7 +5,7 @@ export default function MainPanel(): JSX.Element {
   const { data: session } = useSession();
   return (
     <div className="bg-dark grid grid-flow-col h-20 place-content-center p-4">
-      <img className="h-full" src="/img/logo.png" />
+      <img className="h-full" alt="Wayback Tube's logo" src="/img/logo.png" />
       <div className="grid grid-flow-col place-items-center gap-4">
         {session && session.user ? (
           <>

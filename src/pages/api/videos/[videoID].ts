@@ -1,7 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { PrismaClient } from ".prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaToAPIVideo, APIVideo, YouTubeToPrismaChannel, YouTubeToPrismaVideo, APIYtdlMeta } from "helpers/api";
+import {
+  PrismaToAPIVideo,
+  APIVideo,
+  YouTubeToPrismaChannel,
+  YouTubeToPrismaVideo,
+  APIYtdlMeta,
+} from "helpers/api";
 import { YouTubeDataChannel, YouTubeDataVideo } from "helpers/youtubeApi";
 import { FileJson } from "helpers/fileJson";
 
@@ -33,42 +39,48 @@ export default async function handler(
     const fetchYouTubeVideoResponse = await fetchYouTubeVideo(`${videoID}`);
 
     if (fetchYouTubeVideoResponse.items.length === 1) {
-      const video = fetchYouTubeVideoResponse.items[0];
+      const youtubeVideo = fetchYouTubeVideoResponse.items[0];
       const fetchYouTubeChannelResponse = await fetchYouTubeChannel(
-        video.snippet.channelId
+        youtubeVideo.snippet.channelId
       );
       if (fetchYouTubeChannelResponse.items.length === 1) {
-        const channel = fetchYouTubeChannelResponse.items[0];
+        const youtubeChannel = fetchYouTubeChannelResponse.items[0];
+        const channel = YouTubeToPrismaChannel(youtubeChannel);
 
         // Create the new channel in Prisma
-        const prismaChannel = await prisma.channel.create({
-          data: YouTubeToPrismaChannel(channel),
+        const prismaChannel = await prisma.channel.upsert({
+          create: channel,
+          update: channel,
+          where: { id: channel.id },
         });
 
         const defaultFileJson: FileJson = {
           width: 0,
           height: 0,
           duration: 0,
-          subtitles: [],
+          subtitles: "",
           filesize: 0,
           fps: 0,
           isHDR: false,
           vcodec: "",
-          acodec: ""
-        }
-        
+          acodec: "",
+        };
+
+        const archiverID = "";
+
         // Create the new channel in Prisma
-        const prismaVideo = await prisma.channel.create({
-          data: YouTubeToPrismaVideo(video, channel.id, defaultFileJson),
+        const video = YouTubeToPrismaVideo(
+          youtubeVideo,
+          channel.id,
+          defaultFileJson,
+          archiverID
+        );
+        
+        const prismaVideo = await prisma.video.upsert({
+          create: video,
+          update: video,
+          where: { id: video.id },
         });
-
-
-
-        const prismaVideo = await prisma.channel.create({
-          data: {
-            id: 
-          }
-        })
       }
     }
 

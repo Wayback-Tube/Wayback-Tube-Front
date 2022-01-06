@@ -23,9 +23,9 @@ export type YouTubeDataVideo = {
         madeForKids: boolean;
       };
       statistics: {
-        viewCount: number;
-        likeCount: number;
-        commentCount: number;
+        viewCount: string;
+        likeCount: string;
+        commentCount: string;
       };
     }
   ];
@@ -44,9 +44,9 @@ export type YouTubeDataChannel = {
         country: string;
       };
       statistics: {
-        viewCount: number;
-        subscriberCount: number;
-        videoCount: number;
+        viewCount: string;
+        subscriberCount: string;
+        videoCount: string;
       };
     }
   ];

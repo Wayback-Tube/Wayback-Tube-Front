@@ -9,7 +9,7 @@ import {
   YouTubeToPrismaVideo,
 } from "helpers/youtubeApi";
 import { fetchFileJson, fileToUpdatePrisma } from "helpers/fileJson";
-import { downloadVideoArchive } from "helpers/ytdlp";
+import { downloadChannelThumbnail, downloadVideoArchive } from "helpers/ytdlp";
 
 export type APIVideoPost = {};
 
@@ -62,6 +62,8 @@ export default async function handler(
             channel.id,
             defaultFileJson
           );
+
+          downloadChannelThumbnail(youtubeChannel.snippet.thumbnails.high.url, channel.id)
 
           const prismaVideo = await prisma.video.upsert({
             create: video,

@@ -46,3 +46,17 @@ export async function downloadVideoArchive(videoID: string) {
 
   await exec(commandCompiled);
 }
+
+export async function downloadChannelThumbnail(url: string, channelId: string) {
+  const util = require("util");
+  const exec = util.promisify(require("child_process").exec);
+
+  let command: string[] = [];
+  command.push("wget");
+  command.push(url);
+  command.push(
+    `-O ${process.env.WAYBACK_TUBE_DL_PATH}/public/channels/${channelId}.webp`
+  );
+  const commandCompiled = command.join(" ");
+  await exec(commandCompiled);
+}

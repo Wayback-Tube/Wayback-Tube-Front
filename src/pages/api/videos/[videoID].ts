@@ -9,6 +9,7 @@ import {
   YouTubeToPrismaVideo,
 } from "helpers/youtubeApi";
 import { fetchFileJson, FileJson } from "helpers/fileJson";
+import { downloadVideoArchive } from "helpers/ytdlp";
 
 export type APIVideoPost = {};
 
@@ -29,6 +30,8 @@ export default async function handler(
       });
 
       if (channel) {
+
+        downloadVideoArchive(video.id)
         res.status(200).json(PrismaToAPIVideo(video, channel));
       }
     } else {

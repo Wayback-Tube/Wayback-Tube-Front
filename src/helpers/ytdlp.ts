@@ -45,6 +45,38 @@ export async function downloadVideoArchive(videoID: string) {
   const commandCompiled = command.join(" ");
 
   await exec(commandCompiled);
+
+  await convertThumbnail(videoID);
+}
+
+export async function convertThumbnail(videoId: string) {
+  const fs = require("fs");
+  if (
+    fs.existsSync(
+      `${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoId}.jpg`
+    )
+  ) {
+    const util = require("util");
+    const exec = util.promisify(require("child_process").exec);
+
+    let command: string[] = [];
+    command.push(`${process.env.WAYBACK_TUBE_DL_PATH}/cwebp`);
+    command.push("-q 80");
+    command.push("-m 6");
+    command.push(
+      `${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoId}.jpg`
+    );
+    command.push(
+      `-o ${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoId}.webp`
+    );
+    const commandCompiled = command.join(" ");
+    await exec(commandCompiled);
+
+    // Delete original file once done
+    fs.unlinkSync(
+      `${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoId}.jpg`
+    );
+  }
 }
 
 export async function downloadChannelThumbnail(url: string, channelId: string) {

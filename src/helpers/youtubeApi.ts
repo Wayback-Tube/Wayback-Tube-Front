@@ -27,9 +27,9 @@ export type YouTubeDataVideo = {
         madeForKids: boolean;
       };
       statistics: {
-        viewCount: string;
-        likeCount: string;
-        commentCount: string;
+        viewCount?: string;
+        likeCount?: string;
+        commentCount?: string;
       };
       liveStreamingDetails?: {
         actualStartTime?: string;
@@ -50,7 +50,7 @@ export type YouTubeDataChannel = {
         description: string;
         customUrl?: string;
         publishedAt: string;
-        thumbnails: [high: { url: string }];
+        thumbnails: { high: { url: string } };
         country: string;
       };
       statistics: {
@@ -94,9 +94,9 @@ export function YouTubeToPrismaVideo(
     isUnlisted: video.status.privacyStatus === "unlisted",
     isCC: video.status.license === "creativeCommon",
     isForKids: video.status.madeForKids,
-    viewCount: parseInt(video.statistics.viewCount),
-    likeCount: parseInt(video.statistics.likeCount),
-    commentCount: parseInt(video.statistics.commentCount),
+    viewCount: video.statistics.viewCount ? parseInt(video.statistics.viewCount): null,
+    likeCount: video.statistics.likeCount ? parseInt(video.statistics.likeCount): null,
+    commentCount: video.statistics.commentCount ? parseInt(video.statistics.commentCount): null,
     liveActualStartTime: if2(video.liveStreamingDetails?.actualStartTime, null),
     liveActualEndTime: if2(video.liveStreamingDetails?.actualEndTime, null),
     liveScheduledStartTime: if2(

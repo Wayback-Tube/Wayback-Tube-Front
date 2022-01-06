@@ -70,9 +70,9 @@ model Video {
   isUnlisted             Boolean
   isCC                   Boolean // status.license
   isForKids              Boolean // status.madeForKids
-  viewCount              Int
-  likeCount              Int
-  commentCount           Int
+  viewCount              Int?
+  likeCount              Int?
+  commentCount           Int?
   liveActualStartTime    DateTime?
   liveActualEndTime      DateTime?
   liveScheduledStartTime DateTime?

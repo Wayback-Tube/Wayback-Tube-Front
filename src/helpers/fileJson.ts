@@ -7,7 +7,7 @@ export type RawJson = {
   // TODO subtitles
   filesize_approx: number;
   fps: number;
-  dynamic_range: "SDR" | "HDR";
+  dynamic_range: string;
   vcodec: string;
   acodec: string;
 };
@@ -47,7 +47,7 @@ export function rawJsonToMetaJson(rawJson: RawJson): MetaJson {
     subtitles: [],
     filesize: rawJson.filesize_approx,
     fps: rawJson.width,
-    isHDR: rawJson.dynamic_range === "HDR",
+    isHDR: rawJson.dynamic_range !== "SDR",
     vcodec: rawJson.vcodec,
     acodec: rawJson.acodec,
   }
@@ -55,8 +55,6 @@ export function rawJsonToMetaJson(rawJson: RawJson): MetaJson {
 
 export async function fileToUpdatePrisma(videoID: string) {
   const fs = require("fs");
-
-  console.log("fileToUpdatePrisma");
 
   fs.readFile(
     `${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoID}.info.json`,

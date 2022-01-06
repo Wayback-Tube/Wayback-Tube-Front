@@ -1,14 +1,14 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { PrismaClient } from ".prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaToAPIVideo, APIVideo } from "helpers/api";
+import prisma from "helpers/prisma";
 import {
   YouTubeDataChannel,
   YouTubeDataVideo,
   YouTubeToPrismaChannel,
   YouTubeToPrismaVideo,
 } from "helpers/youtubeApi";
-import { fetchFileJson, FileJson } from "helpers/fileJson";
+import { fetchFileJson, fileToUpdatePrisma } from "helpers/fileJson";
 import { downloadVideoArchive } from "helpers/ytdlp";
 
 export type APIVideoPost = {};
@@ -18,7 +18,6 @@ export default async function handler(
   res: NextApiResponse<APIVideo | APIVideoPost | null>
 ) {
   const { videoID } = req.query;
-  const prisma = new PrismaClient();
 
   if (req.method === "GET") {
     const video = await prisma.video.findUnique({
@@ -30,8 +29,6 @@ export default async function handler(
       });
 
       if (channel) {
-
-        downloadVideoArchive(video.id)
         res.status(200).json(PrismaToAPIVideo(video, channel));
       }
     } else {
@@ -74,9 +71,10 @@ export default async function handler(
           });
 
           if (prismaVideo.id === video.id) {
-
-            
-
+            res.status(200).json(null);
+            downloadVideoArchive(video.id).then(() => {
+              fileToUpdatePrisma(video.id);
+            });
           }
         }
       }

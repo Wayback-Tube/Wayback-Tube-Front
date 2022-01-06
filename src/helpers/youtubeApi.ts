@@ -1,6 +1,6 @@
 import { Channel, Video } from "@prisma/client";
-import { FileJson } from "helpers/fileJson";
 import { if2 } from "helpers/tools";
+import { MetaJson } from "./fileJson";
 
 export type YouTubeDataVideo = {
   items: [
@@ -48,7 +48,7 @@ export type YouTubeDataChannel = {
       snippet: {
         title: string;
         description: string;
-        customUrl: string;
+        customUrl?: string;
         publishedAt: string;
         thumbnails: [high: { url: string }];
         country: string;
@@ -70,7 +70,7 @@ export function YouTubeToPrismaChannel(
     title: channel.snippet.title,
     description: channel.snippet.description,
     publishedAt: new Date(channel.snippet.publishedAt),
-    customUrl: channel.snippet.customUrl,
+    customUrl: if2(channel.snippet.customUrl, null),
     viewCount: parseInt(channel.statistics.viewCount),
     subscriberCount: parseInt(channel.statistics.subscriberCount),
     videoCount: parseInt(channel.statistics.videoCount),
@@ -80,7 +80,7 @@ export function YouTubeToPrismaChannel(
 export function YouTubeToPrismaVideo(
   video: YouTubeDataVideo["items"][number],
   channelId: string,
-  file: FileJson
+  file: MetaJson
 ): Video {
   return {
     id: video.id,

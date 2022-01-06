@@ -18,7 +18,7 @@ export type APIYouTubeChannel = {
   title: string;
   description: string;
   publishedAt: Date;
-  customURL: string;
+  customURL: string | null;
   thumbnail: APIThumbnail;
   viewCount: number;
   subscriberCount: number;

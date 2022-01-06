@@ -125,7 +125,7 @@ model Channel {
   title           String
   description     String
   publishedAt     DateTime
-  customUrl       String
+  customUrl       String?
   viewCount       Int
   subscriberCount Int
   videoCount      Int

@@ -1,4 +1,4 @@
-export function downloadVideoArchive(videoID: string) {
+export async function downloadVideoArchive(videoID: string) {
   const util = require("util");
   const exec = util.promisify(require("child_process").exec);
 
@@ -33,20 +33,16 @@ export function downloadVideoArchive(videoID: string) {
   command.push("--write-annotations");
 
   // Output format
-  command.push(`--ffmpeg-location '${process.env.WAYBACK_TUBE_DL_PATH}'`)
-  command.push(`--output '${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/%(id)s.%(ext)s'`);
+  command.push(`--ffmpeg-location '${process.env.WAYBACK_TUBE_DL_PATH}'`);
+  command.push(
+    `--output '${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/%(id)s.%(ext)s'`
+  );
   command.push("--merge-output-format mp4");
 
   // Finally pass the video ID to download
   command.push(videoID);
 
   const commandCompiled = command.join(" ");
-  console.log(commandCompiled);
 
-  async function ls() {
-    const { stdout, stderr } = await exec(commandCompiled);
-    console.log("stdout:", stdout);
-    console.log("stderr:", stderr);
-  }
-  ls();
+  await exec(commandCompiled);
 }

@@ -40,6 +40,7 @@ model VerificationToken {
 
 model Collection {
   id     String                @id @default(cuid())
+  name   String
   userId String
   user   User                  @relation(fields: [userId], references: [id])
   videos VideosOnCollections[]
@@ -65,7 +66,6 @@ model Video {
   tags                   TagsOnVideos[]
   defaultLanguage        String
   category               String
-  duration               Int
   is3D                   Boolean // contentDetails.dimension
   is360                  Boolean // contentDetails.projection
   isUnlisted             Boolean
@@ -74,15 +74,16 @@ model Video {
   viewCount              Int
   likeCount              Int
   commentCount           Int
-  liveActualStartTime    DateTime
-  liveActualEndTime      DateTime
-  liveScheduledStartTime DateTime
-  liveScheduledEndTime   DateTime
+  liveActualStartTime    DateTime?
+  liveActualEndTime      DateTime?
+  liveScheduledStartTime DateTime?
+  liveScheduledEndTime   DateTime?
   // Properties from YT-DLP
   width                  Int
   height                 Int
-  ext                    String
-  filesizeApprox         Int
+  duration               Int
+  subtitles              String
+  filesize               Int
   fps                    Int
   isHDR                  Boolean
   vcodec                 String
@@ -115,9 +116,6 @@ model Channel {
   description     String
   publishedAt     DateTime
   customUrl       String
-  thumbnailUrl    String
-  thumbnailWidth  Int
-  thumbnailHeight Int
   viewCount       Int
   subscriberCount Int
   videoCount      Int

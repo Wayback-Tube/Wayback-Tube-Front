@@ -1,15 +1,14 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { PrismaClient } from ".prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { PrismaToAPIVideo, APIVideo } from "helpers/api";
 import {
-  PrismaToAPIVideo,
-  APIVideo,
+  YouTubeDataChannel,
+  YouTubeDataVideo,
   YouTubeToPrismaChannel,
   YouTubeToPrismaVideo,
-  APIYtdlMeta,
-} from "helpers/api";
-import { YouTubeDataChannel, YouTubeDataVideo } from "helpers/youtubeApi";
-import { FileJson } from "helpers/fileJson";
+} from "helpers/youtubeApi";
+import { fetchFileJson, FileJson } from "helpers/fileJson";
 
 export type APIVideoPost = {};
 
@@ -54,33 +53,29 @@ export default async function handler(
           where: { id: channel.id },
         });
 
-        const defaultFileJson: FileJson = {
-          width: 0,
-          height: 0,
-          duration: 0,
-          subtitles: "",
-          filesize: 0,
-          fps: 0,
-          isHDR: false,
-          vcodec: "",
-          acodec: "",
-        };
+        if (prismaChannel.id === channel.id) {
 
-        const archiverID = "";
+          const defaultFileJson = fetchFileJson(youtubeVideo.id);
+         
+          // Create the new channel in Prisma
+          const video = YouTubeToPrismaVideo(
+            youtubeVideo,
+            channel.id,
+            defaultFileJson
+          );
 
-        // Create the new channel in Prisma
-        const video = YouTubeToPrismaVideo(
-          youtubeVideo,
-          channel.id,
-          defaultFileJson,
-          archiverID
-        );
-        
-        const prismaVideo = await prisma.video.upsert({
-          create: video,
-          update: video,
-          where: { id: video.id },
-        });
+          const prismaVideo = await prisma.video.upsert({
+            create: video,
+            update: video,
+            where: { id: video.id },
+          });
+
+          if (prismaVideo.id === video.id) {
+
+            
+
+          }
+        }
       }
     }
 

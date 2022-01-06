@@ -1,6 +1,4 @@
 import { Channel, Video } from "@prisma/client";
-import { FileJson } from "./fileJson";
-import { YouTubeDataChannel, YouTubeDataVideo } from "./youtubeApi";
 
 export type APICollection = {
   collectionID: string;
@@ -34,7 +32,6 @@ export type APIYouTubeVideo = {
   publishedAt: Date;
   channel: APIYouTubeChannel;
   tags: string[];
-  defaultLanguage: string;
   category: string;
   is3D: boolean;
   is360: boolean;
@@ -51,23 +48,22 @@ export type APIYouTubeVideo = {
 };
 
 export type APIYtdlMeta = {
-  videoUrl: string;
-  thumbnail: APIThumbnail;
-  metadataUrl: string;
-  width: number;
-  height: number;
-  duration: number;
-  subtitles: string[];
-  filesize: number;
-  fps: number;
-  isHDR: boolean;
-  vcodec: string;
-  acodec: string;
+  videoUrl: string | null;
+  thumbnail: APIThumbnail | null;
+  metadataUrl: string | null;
+  livechatUrl: string | null;
+  width: number | null;
+  height: number | null;
+  duration: number | null;
+  subtitles: string[] | null;
+  filesize: number | null;
+  fps: number | null;
+  isHDR: boolean | null;
+  vcodec: string | null;
+  acodec: string | null;
 };
 
 export type APIWaybackMeta = {
-  archivedAt: Date;
-  archivedBy: string;
   lastUpdatedAt: Date;
   collectionCount: number;
 };
@@ -77,102 +73,6 @@ export type APIVideo = {
   file: APIYtdlMeta;
   wayback: APIWaybackMeta;
 };
-
-export function YouTubeToPrismaChannel(
-  channel: YouTubeDataChannel["items"][number]
-): Channel {
-  return {
-    id: channel.id,
-    title: channel.snippet.title,
-    description: channel.snippet.description,
-    publishedAt: new Date(channel.snippet.publishedAt),
-    customUrl: channel.snippet.customUrl,
-    viewCount: parseInt(channel.statistics.viewCount),
-    subscriberCount: parseInt(channel.statistics.subscriberCount),
-    videoCount: parseInt(channel.statistics.videoCount),
-  };
-}
-
-export function YouTubeToPrismaVideo(
-  video: YouTubeDataVideo["items"][number],
-  channelId: string,
-  file: FileJson,
-  archiverID: string
-): Video {
-  return {
-    id: video.id,
-    title: video.snippet.title,
-    description: video.snippet.description,
-    publishedAt: new Date(video.snippet.publishedAt),
-    channelId: channelId,
-    defaultLanguage: video.snippet.defaultLanguage,
-    category: YouTubeCategoryToString(video.snippet.categoryId),
-    is3D: video.contentDetails.dimension === "3d",
-    is360: video.contentDetails.projection === "360",
-    isUnlisted: video.status.privacyStatus === "unlisted",
-    isCC: video.status.license === "creativeCommon",
-    isForKids: video.status.madeForKids,
-    viewCount: parseInt(video.statistics.viewCount),
-    likeCount: parseInt(video.statistics.likeCount),
-    commentCount: parseInt(video.statistics.commentCount),
-    liveActualStartTime: new Date(),
-    liveActualEndTime: new Date(),
-    liveScheduledStartTime: new Date(),
-    liveScheduledEndTime: new Date(),
-    duration: file.duration,
-    width: file.width,
-    height: file.height,
-    subtitles: file.subtitles,
-    filesize: file.filesize,
-    fps: file.fps,
-    isHDR: file.isHDR,
-    vcodec: file.vcodec,
-    acodec: file.acodec,
-    archivedBy: archiverID,
-    archivedAt: new Date(),
-    lastUpdatedAt: new Date(),
-  };
-}
-
-
-
-
-export function YouTubeCategoryToString(categoryid: number): string {
-  return [
-    "Film&Animation",
-    "Autos&Vehicles",
-    "Music",
-    "Pets&Animals",
-    "Sports",
-    "ShortMovies",
-    "Travel&Events",
-    "Gaming",
-    "Videoblogging",
-    "People&Blogs",
-    "Comedy",
-    "Entertainment",
-    "News&Politics",
-    "Howto&Style",
-    "Education",
-    "Science&Technology",
-    "Nonprofits&Activism",
-    "Movies",
-    "Anime/Animation",
-    "Action/Adventure",
-    "Classics",
-    "Comedy",
-    "Documentary",
-    "Drama",
-    "Family",
-    "Foreign",
-    "Horror",
-    "Sci-Fi/Fantasy",
-    "Thriller",
-    "Shorts",
-    "Shows",
-    "Trailers",
-  ][categoryid];
-}
 
 export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
   return {
@@ -188,7 +88,7 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
         publishedAt: channel.publishedAt,
         customURL: channel.customUrl,
         thumbnail: {
-          url: `${process.env.NEXT_PUBLIC_STATIC_URL}/channel/${channel.id}.webp`,
+          url: `${process.env.NEXT_PUBLIC_STATIC_URL}/channels/${channel.id}.webp`,
           width: 800,
           height: 800,
         },
@@ -197,8 +97,7 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
         videoCount: channel.videoCount,
       },
       tags: [],
-      defaultLanguage: video.defaultLanguage,
-      category: video.defaultLanguage,
+      category: video.category,
       is3D: video.is3D,
       is360: video.is360,
       isUnlisted: video.isUnlisted,
@@ -208,18 +107,27 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
       likeCount: video.likeCount,
       commentCount: video.commentCount,
       liveActualStartTime: video.liveActualStartTime,
-      liveActualEndTime: video.liveActualStartTime,
-      liveScheduledStartTime: video.liveActualStartTime,
-      liveScheduledEndTime: video.liveActualStartTime,
+      liveActualEndTime: video.liveActualEndTime,
+      liveScheduledStartTime: video.liveScheduledStartTime,
+      liveScheduledEndTime: video.liveScheduledEndTime,
     },
     file: {
-      videoUrl: `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.mp4`,
-      thumbnail: {
-        url: `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.webp`,
-        width: 1280,
-        height: 720,
-      },
-      metadataUrl: `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.info.json`,
+      videoUrl: video.width
+        ? `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.mp4`
+        : null,
+      thumbnail: video.width
+        ? {
+            url: `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.webp`,
+            width: 1280,
+            height: 720,
+          }
+        : null,
+      metadataUrl: video.width
+        ? `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.info.json`
+        : null,
+      livechatUrl: video.width
+        ? `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.live.json`
+        : null,
       width: video.width,
       height: video.height,
       duration: video.duration,
@@ -231,8 +139,6 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
       acodec: video.acodec,
     },
     wayback: {
-      archivedAt: video.archivedAt,
-      archivedBy: video.archivedBy,
       lastUpdatedAt: video.lastUpdatedAt,
       collectionCount: 0,
     },

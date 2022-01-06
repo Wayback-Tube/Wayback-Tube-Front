@@ -64,7 +64,6 @@ model Video {
   channelId              String
   channel                Channel               @relation(fields: [channelId], references: [id])
   tags                   TagsOnVideos[]
-  defaultLanguage        String
   category               String
   is3D                   Boolean // contentDetails.dimension
   is360                  Boolean // contentDetails.projection
@@ -79,32 +78,43 @@ model Video {
   liveScheduledStartTime DateTime?
   liveScheduledEndTime   DateTime?
   // Properties from YT-DLP
-  width                  Int
-  height                 Int
-  duration               Int
-  subtitles              String
-  filesize               Int
-  fps                    Int
-  isHDR                  Boolean
-  vcodec                 String
-  acodec                 String
+  width                  Int?
+  height                 Int?
+  duration               Int?
+  subtitles              SubtitlesOnVideos[]
+  filesize               Int?
+  fps                    Int?
+  isHDR                  Boolean?
+  vcodec                 String?
+  acodec                 String?
   // Meta properties
-  archivedAt             DateTime              @default(now())
-  archivedBy             String
   lastUpdatedAt          DateTime
   collections            VideosOnCollections[]
 }
 
+model Languages {
+  name   String              @id
+  videos SubtitlesOnVideos[]
+}
+
+model SubtitlesOnVideos {
+  video      Video     @relation(fields: [videoId], references: [id])
+  videoId    String
+  language   Languages @relation(fields: [languageId], references: [name])
+  languageId String
+
+  @@id([videoId, languageId])
+}
+
 model Tag {
-  id     String         @id @default(cuid())
-  name   String
+  name   String         @id
   videos TagsOnVideos[]
 }
 
 model TagsOnVideos {
   video   Video  @relation(fields: [videoId], references: [id])
   videoId String
-  tag     Tag    @relation(fields: [tagId], references: [id])
+  tag     Tag    @relation(fields: [tagId], references: [name])
   tagId   String
 
   @@id([videoId, tagId])

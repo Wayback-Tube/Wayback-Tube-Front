@@ -94,9 +94,15 @@ export function YouTubeToPrismaVideo(
     isUnlisted: video.status.privacyStatus === "unlisted",
     isCC: video.status.license === "creativeCommon",
     isForKids: video.status.madeForKids,
-    viewCount: video.statistics.viewCount ? parseInt(video.statistics.viewCount): null,
-    likeCount: video.statistics.likeCount ? parseInt(video.statistics.likeCount): null,
-    commentCount: video.statistics.commentCount ? parseInt(video.statistics.commentCount): null,
+    viewCount: video.statistics.viewCount
+      ? parseInt(video.statistics.viewCount)
+      : null,
+    likeCount: video.statistics.likeCount
+      ? parseInt(video.statistics.likeCount)
+      : null,
+    commentCount: video.statistics.commentCount
+      ? parseInt(video.statistics.commentCount)
+      : null,
     liveActualStartTime: if2(video.liveStreamingDetails?.actualStartTime, null),
     liveActualEndTime: if2(video.liveStreamingDetails?.actualEndTime, null),
     liveScheduledStartTime: if2(
@@ -108,6 +114,7 @@ export function YouTubeToPrismaVideo(
       null
     ),
     duration: file.duration,
+    subtitles: file.subtitles,
     width: file.width,
     height: file.height,
     filesize: file.filesize,
@@ -165,7 +172,9 @@ export async function fetchYouTubeVideo(id: string): Promise<YouTubeDataVideo> {
   return await res.json();
 }
 
-export async function fetchYouTubeChannel(id: string): Promise<YouTubeDataChannel> {
+export async function fetchYouTubeChannel(
+  id: string
+): Promise<YouTubeDataChannel> {
   const part = "id,snippet,statistics";
   const key = process.env.YOUTUBE_API_KEY;
   const url = `https://youtube.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;

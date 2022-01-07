@@ -1,4 +1,5 @@
 import { Channel, Video } from "@prisma/client";
+import { getLanguage } from "helpers/tools";
 
 export type APICollection = {
   collectionID: string;
@@ -38,9 +39,9 @@ export type APIYouTubeVideo = {
   isUnlisted: boolean;
   isCC: boolean;
   isForKids: boolean;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
+  viewCount: number | null;
+  likeCount: number | null;
+  commentCount: number | null;
   liveActualStartTime: string | null;
   liveActualEndTime: string | null;
   liveScheduledStartTime: string | null;
@@ -52,15 +53,21 @@ export type APIYtdlMeta = {
   thumbnail: APIThumbnail | null;
   metadataUrl: string | null;
   livechatUrl: string | null;
+  subtitles: Subtitle[];
   width: number | null;
   height: number | null;
   duration: number | null;
-  subtitles: string[] | null;
   filesize: number | null;
   fps: number | null;
   isHDR: boolean | null;
   vcodec: string | null;
   acodec: string | null;
+};
+
+export type Subtitle = {
+  languageCode: string;
+  language: string;
+  url: string;
 };
 
 export type APIWaybackMeta = {
@@ -70,14 +77,26 @@ export type APIWaybackMeta = {
 
 export type APIVideo = {
   id: string;
+  watchUrl: string;
   youtube: APIYouTubeVideo;
   file: APIYtdlMeta;
   wayback: APIWaybackMeta;
 };
 
 export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
+  const subtitles: Subtitle[] = [];
+  if (video.subtitles) {
+    video.subtitles.split("/").map((languageCode) => {
+      subtitles.push({
+        languageCode: languageCode,
+        language: getLanguage(languageCode).nativeName,
+        url: `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.${languageCode}.vtt`,
+      });
+    });
+  }
   return {
     id: video.id,
+    watchUrl: `${process.env.NEXTAUTH_URL}/watch/${video.id}`,
     youtube: {
       videoID: video.id,
       title: video.title,
@@ -108,10 +127,18 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
       viewCount: video.viewCount,
       likeCount: video.likeCount,
       commentCount: video.commentCount,
-      liveActualStartTime: video.liveActualStartTime,
-      liveActualEndTime: video.liveActualEndTime,
-      liveScheduledStartTime: video.liveScheduledStartTime,
-      liveScheduledEndTime: video.liveScheduledEndTime,
+      liveActualStartTime: video.liveActualStartTime
+        ? video.liveActualStartTime.toISOString()
+        : null,
+      liveActualEndTime: video.liveActualEndTime
+        ? video.liveActualEndTime.toISOString()
+        : null,
+      liveScheduledStartTime: video.liveScheduledStartTime
+        ? video.liveScheduledStartTime.toISOString()
+        : null,
+      liveScheduledEndTime: video.liveScheduledEndTime
+        ? video.liveScheduledEndTime.toISOString()
+        : null,
     },
     file: {
       videoUrl: video.width
@@ -130,10 +157,10 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
       livechatUrl: video.width
         ? `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.live.json`
         : null,
+      subtitles: subtitles,
       width: video.width,
       height: video.height,
       duration: video.duration,
-      subtitles: [],
       filesize: video.filesize,
       fps: video.fps,
       isHDR: video.isHDR,

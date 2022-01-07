@@ -47,20 +47,22 @@ export default function Watch({ video }: Props): JSX.Element {
 
       <div className="grid w-screen place-content-center ">
         <div className="">
-          <video className="w-full" controls crossOrigin="staticwaybacktube.r-entries.com" autoPlay>
+          <video
+            className="w-full"
+            controls
+            crossOrigin="staticwaybacktube.r-entries.com"
+            autoPlay
+          >
             <source src={video.file.videoUrl} type="video/mp4" />
-            <track
-              src={`https://staticwaybacktube.r-entries.com/videos/${video.id}.en.vtt`}
-              kind="subtitles"
-              srcLang="en"
-              label="English"
-            />
-            <track
-              label="Deutsch"
-              kind="subtitles"
-              srcLang="de"
-              src={`https://staticwaybacktube.r-entries.com/videos/${video.id}.de.vtt`}
-            />
+            {video.file.subtitles.map((subtitle) => (
+              <track
+                key={subtitle.languageCode}
+                src={subtitle.url}
+                kind="subtitles"
+                srcLang={subtitle.languageCode}
+                label={subtitle.language}
+              />
+            ))}
           </video>
           <div className="grid grid-flow-col place-content-start gap-4">
             <h1 className="text-2xl">{video.youtube.title}</h1>

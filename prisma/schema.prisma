@@ -81,7 +81,7 @@ model Video {
   width                  Int?
   height                 Int?
   duration               Int?
-  subtitles              SubtitlesOnVideos[]
+  subtitles              String?
   filesize               Int?
   fps                    Int?
   isHDR                  Boolean?
@@ -90,20 +90,6 @@ model Video {
   // Meta properties
   lastUpdatedAt          DateTime
   collections            VideosOnCollections[]
-}
-
-model Languages {
-  name   String              @id
-  videos SubtitlesOnVideos[]
-}
-
-model SubtitlesOnVideos {
-  video      Video     @relation(fields: [videoId], references: [id])
-  videoId    String
-  language   Languages @relation(fields: [languageId], references: [name])
-  languageId String
-
-  @@id([videoId, languageId])
 }
 
 model Tag {

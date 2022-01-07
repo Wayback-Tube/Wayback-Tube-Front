@@ -89,7 +89,7 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
     video.subtitles.split("/").map((languageCode) => {
       subtitles.push({
         languageCode: languageCode,
-        language: getLanguage(languageCode).nativeName,
+        language: getLanguage(languageCode),
         url: `${process.env.NEXT_PUBLIC_STATIC_URL}/videos/${video.id}.${languageCode}.vtt`,
       });
     });

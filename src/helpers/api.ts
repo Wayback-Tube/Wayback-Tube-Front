@@ -17,7 +17,7 @@ export type APIYouTubeChannel = {
   channelID: string;
   title: string;
   description: string;
-  publishedAt: Date;
+  publishedAt: string;
   customURL: string | null;
   thumbnail: APIThumbnail;
   viewCount: number;
@@ -29,7 +29,7 @@ export type APIYouTubeVideo = {
   videoID: string;
   title: string;
   description: string;
-  publishedAt: Date;
+  publishedAt: string;
   channel: APIYouTubeChannel;
   tags: string[];
   category: string;
@@ -41,10 +41,10 @@ export type APIYouTubeVideo = {
   viewCount: number;
   likeCount: number;
   commentCount: number;
-  liveActualStartTime: Date | null;
-  liveActualEndTime: Date | null;
-  liveScheduledStartTime: Date | null;
-  liveScheduledEndTime: Date | null;
+  liveActualStartTime: string | null;
+  liveActualEndTime: string | null;
+  liveScheduledStartTime: string | null;
+  liveScheduledEndTime: string | null;
 };
 
 export type APIYtdlMeta = {
@@ -64,11 +64,12 @@ export type APIYtdlMeta = {
 };
 
 export type APIWaybackMeta = {
-  lastUpdatedAt: Date;
+  lastUpdatedAt: string;
   collectionCount: number;
 };
 
 export type APIVideo = {
+  id: string;
   youtube: APIYouTubeVideo;
   file: APIYtdlMeta;
   wayback: APIWaybackMeta;
@@ -76,16 +77,17 @@ export type APIVideo = {
 
 export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
   return {
+    id: video.id,
     youtube: {
       videoID: video.id,
       title: video.title,
       description: video.description,
-      publishedAt: video.publishedAt,
+      publishedAt: video.publishedAt.toISOString(),
       channel: {
         channelID: channel.id,
         title: channel.title,
         description: channel.description,
-        publishedAt: channel.publishedAt,
+        publishedAt: channel.publishedAt.toISOString(),
         customURL: channel.customUrl,
         thumbnail: {
           url: `${process.env.NEXT_PUBLIC_STATIC_URL}/channels/${channel.id}.webp`,
@@ -139,7 +141,7 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
       acodec: video.acodec,
     },
     wayback: {
-      lastUpdatedAt: video.lastUpdatedAt,
+      lastUpdatedAt: video.lastUpdatedAt.toISOString(),
       collectionCount: 0,
     },
   };

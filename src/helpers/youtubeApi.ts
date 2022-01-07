@@ -155,3 +155,20 @@ export function YouTubeCategoryToString(categoryid: number): string {
     "Trailers",
   ][categoryid];
 }
+
+export async function fetchYouTubeVideo(id: string): Promise<YouTubeDataVideo> {
+  const part =
+    "contentDetails,id,liveStreamingDetails,snippet,statistics,status";
+  const key = process.env.YOUTUBE_API_KEY;
+  const url = `https://youtube.googleapis.com/youtube/v3/videos?part=${part}&id=${id}&key=${key}`;
+  const res = await fetch(url);
+  return await res.json();
+}
+
+export async function fetchYouTubeChannel(id: string): Promise<YouTubeDataChannel> {
+  const part = "id,snippet,statistics";
+  const key = process.env.YOUTUBE_API_KEY;
+  const url = `https://youtube.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
+  const res = await fetch(url);
+  return await res.json();
+}

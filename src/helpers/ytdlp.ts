@@ -1,9 +1,7 @@
 import { existsSync, unlinkSync } from "fs";
+import { execSync } from "child_process";
 
 export async function downloadVideoArchive(videoID: string) {
-  const util = require("util");
-  const exec = util.promisify(require("child_process").exec);
-
   let command: string[] = [];
 
   // Path to yt-dlp executable
@@ -21,14 +19,13 @@ export async function downloadVideoArchive(videoID: string) {
   // Embed data
   command.push("--embed-subs");
   command.push("--embed-chapters");
-  command.push("--embed-info-json");
+  command.push("--embed-thumbnail");
   command.push("--embed-metadata");
 
   // Save other data
   command.push("--write-subs");
   command.push("--write-thumbnail");
   command.push("--write-info-json");
-  command.push("--write-annotations");
 
   // Output format
   command.push(`--ffmpeg-location '${process.env.WAYBACK_TUBE_DL_PATH}'`);
@@ -38,12 +35,9 @@ export async function downloadVideoArchive(videoID: string) {
   command.push("--merge-output-format mp4");
 
   // Finally pass the video ID to download
-  command.push(videoID);
+  command.push(`-- '${videoID}'`);
 
-  const commandCompiled = command.join(" ");
-
-  await exec(commandCompiled);
-
+  await displayedExec(command.join(" "));
   await convertThumbnail(videoID);
 }
 
@@ -53,9 +47,6 @@ export async function convertThumbnail(videoId: string) {
       `${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoId}.jpg`
     )
   ) {
-    const util = require("util");
-    const exec = util.promisify(require("child_process").exec);
-
     let command: string[] = [];
     command.push(`${process.env.WAYBACK_TUBE_DL_PATH}/cwebp`);
     command.push("-q 80");
@@ -66,8 +57,8 @@ export async function convertThumbnail(videoId: string) {
     command.push(
       `-o ${process.env.WAYBACK_TUBE_DL_PATH}/public/videos/${videoId}.webp`
     );
-    const commandCompiled = command.join(" ");
-    await exec(commandCompiled);
+
+    await displayedExec(command.join(" "));
 
     // Delete original file once done
     unlinkSync(
@@ -77,15 +68,15 @@ export async function convertThumbnail(videoId: string) {
 }
 
 export async function downloadChannelThumbnail(url: string, channelId: string) {
-  const util = require("util");
-  const exec = util.promisify(require("child_process").exec);
-
   let command: string[] = [];
   command.push("wget");
   command.push(url);
   command.push(
     `-O ${process.env.WAYBACK_TUBE_DL_PATH}/public/channels/${channelId}.webp`
   );
-  const commandCompiled = command.join(" ");
-  await exec(commandCompiled);
+  await displayedExec(command.join(" "));
+}
+
+async function displayedExec(command: string) {
+  execSync(command, { stdio: "inherit" });
 }

@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaToAPIVideo, APIVideo } from "helpers/api";
+import { PrismaToAPIVideo, APIVideo, APIMessageResponse } from "helpers/api";
 import prisma from "helpers/prisma";
 import {
   YouTubeToPrismaChannel,
@@ -9,11 +9,6 @@ import {
 import { fetchFileJson, fileToUpdatePrisma } from "helpers/fileJson";
 import { downloadChannelThumbnail, downloadVideoArchive } from "helpers/ytdlp";
 import { fetchYouTubeVideo, fetchYouTubeChannel } from "helpers/youtubeApi";
-
-export type APIMessageResponse = {
-  message: string;
-};
-
 
 export default async function handler(
   req: NextApiRequest,
@@ -61,7 +56,7 @@ export default async function handler(
           // Create the new channel in Prisma
           const video = YouTubeToPrismaVideo(
             youtubeVideo,
-            channel.id,
+            channel,
             defaultFileJson
           );
 

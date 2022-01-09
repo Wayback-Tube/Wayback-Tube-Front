@@ -1,6 +1,22 @@
 import { Channel, Video } from "@prisma/client";
 import { getLanguage } from "helpers/tools";
 
+export type APIMessageResponse = {
+  message: string;
+};
+
+export type APIVideoPreview = {
+  id: string;
+  title: string;
+  watchUrl: string;
+  channel: {
+    title: string,
+    thumbnail: APIThumbnail
+  }
+  duration: number | null;
+  thumbnail: APIThumbnail | null;
+};
+
 export type APICollection = {
   collectionID: string;
   name: string;

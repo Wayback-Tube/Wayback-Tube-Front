@@ -1,6 +1,88 @@
+export function prettyNumber(number: number): string {
+  return number.toLocaleString();
+}
+
+export function prettyDuration(seconds: number): string {
+  let hours = 0;
+  let minutes = 0;
+  while (seconds > 60) {
+    minutes += 1;
+    seconds -= 60;
+  }
+  while (minutes > 60) {
+    hours += 1;
+    minutes -= 60;
+  }
+  let result = "";
+  if (hours) result += hours.toString().padStart(2, "0") + ":";
+  result += minutes.toString().padStart(2, "0") + ":";
+  result += seconds.toString().padStart(2, "0");
+  return result;
+}
+
+export function prettyDate(string: string): string {
+  const date = new Date(string);
+  const year = date.getUTCFullYear().toString().padStart(4, "0");
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}/${month}/${day}`;
+}
+
+export function prettyDateTime(string: string | null) {
+  if (string) {
+    const date = new Date(string);
+    const year = date.getUTCFullYear().toString().padStart(4, "0");
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hours = date.toLocaleTimeString();
+    return `${year}/${month}/${day} - ${hours}`;
+  } else {
+    return " - ";
+  }
+}
+
+export function prettyDateTimeDiff(
+  stringA: string | null,
+  stringB: string | null
+) {
+  if (stringB) {
+    if (stringA) {
+      const unixA = new Date(stringA).getTime();
+      const unixB = new Date(stringB).getTime();
+      let diffSeconds = Math.abs(unixB - unixA) / 1000;
+      let diffMinutes = 0;
+      let diffHours = 0;
+      while (diffSeconds > 60) {
+        diffSeconds -= 60;
+        diffMinutes += 1;
+      }
+      while (diffMinutes > 60) {
+        diffMinutes -= 60;
+        diffHours += 1;
+      }
+      let result = "";
+      if (diffHours > 0) result += `${diffHours} hours, `;
+      if (diffMinutes > 0) result += `${diffMinutes} minutes, `;
+      if (diffSeconds > 0) result += `${diffSeconds} secondes `;
+      result += unixA > unixB ? "early" : "late";
+      return result;
+    } else {
+      return prettyDateTime(stringB);
+    }
+  } else {
+    return " - ";
+  }
+}
+
 export function if2(value: any, fallback: any) {
   if (value) return value;
   return fallback;
+}
+
+export async function fetcher(url: string) {
+  const res = await fetch(url);
+  const json = await res.json();
+  return json;
 }
 
 /**

@@ -79,7 +79,7 @@ export function YouTubeToPrismaChannel(
 
 export function YouTubeToPrismaVideo(
   video: YouTubeDataVideo["items"][number],
-  channelId: string,
+  channel: Channel,
   file: MetaJson
 ): Video {
   return {
@@ -87,7 +87,8 @@ export function YouTubeToPrismaVideo(
     title: video.snippet.title,
     description: video.snippet.description,
     publishedAt: new Date(video.snippet.publishedAt),
-    channelId: channelId,
+    channelId: channel.id,
+    channelTitle: channel.title,
     category: YouTubeCategoryToString(video.snippet.categoryId),
     is3D: video.contentDetails.dimension === "3d",
     is360: video.contentDetails.projection === "360",

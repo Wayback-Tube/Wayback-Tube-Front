@@ -43,7 +43,8 @@ export function fetchFileJson(videoID: string): MetaJson {
 export function rawJsonToMetaJson(rawJson: RawJson): MetaJson {
   // Remove the live_chat from the list of subtitles
   const subtitles = rawJson.subtitles ? Object.keys(rawJson.subtitles) : [];
-  if (subtitles.indexOf("live_chat") >= 0) subtitles.splice(subtitles.indexOf("live_chat"), 1);
+  if (subtitles.indexOf("live_chat") >= 0)
+    subtitles.splice(subtitles.indexOf("live_chat"), 1);
   return {
     width: rawJson.width,
     height: rawJson.height,
@@ -75,7 +76,7 @@ export async function fileToUpdatePrisma(videoID: string) {
             height: metaJson.height,
             duration: metaJson.duration,
             subtitles: metaJson.subtitles,
-            filesize: metaJson.filesize,
+            filesize: metaJson.filesize ? Math.floor(metaJson.filesize) : null,
             fps: metaJson.fps,
             isHDR: metaJson.isHDR,
             vcodec: metaJson.vcodec,

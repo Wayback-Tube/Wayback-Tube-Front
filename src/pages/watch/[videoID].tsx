@@ -15,20 +15,18 @@ import BubbleLabel from "components/BubbleLabel";
 import Link from "next/link";
 import VideoError from "components/VideoError";
 
-export default function Watch(): JSX.Element {
-  const router = useRouter();
-  const { videoID } = router.query;
+type Props = {
+  video: APIVideo;
+};
 
-  const url = `/api/videos/${videoID}`;
-  const { data, error } = useSWR(url, fetcher);
+
+export default function Watch({ video }: Props): JSX.Element {
+  const router = useRouter();
+
 
   const url2 = "/api/videos/";
   const { data: data2, error: error2 } = useSWR(url2, fetcher);
 
-  if (error) return <div>failed to load</div>;
-  if (!data) return <div></div>;
-
-  const video: APIVideo = data;
   const videoPreviews: APIVideoPreview[] = data2;
 
   if (!video.id) {
@@ -392,3 +390,21 @@ export default function Watch(): JSX.Element {
     );
   }
 }
+
+export async function getServerSideProps(context) {
+  const videoID = context.params.videoID;
+  if (videoID) {
+    console.log(`${process.env.NEXTAUTH_URL}/api/videos/${videoID}`);
+
+    fetch(`${process.env.NEXTAUTH_URL}/api/videos/${videoID}`, {
+      method: "GET",
+    });
+
+    const url = `${process.env.NEXTAUTH_URL}/api/videos/${videoID}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return {
+      props: { video: data },
+    };
+  }
+};

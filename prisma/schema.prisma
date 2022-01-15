@@ -62,6 +62,7 @@ model Video {
   description            String
   publishedAt            DateTime
   channelId              String
+  channelTitle           String
   channel                Channel               @relation(fields: [channelId], references: [id])
   tags                   TagsOnVideos[]
   category               String
@@ -70,9 +71,9 @@ model Video {
   isUnlisted             Boolean
   isCC                   Boolean // status.license
   isForKids              Boolean // status.madeForKids
-  viewCount              Int
-  likeCount              Int
-  commentCount           Int
+  viewCount              Int?
+  likeCount              Int?
+  commentCount           Int?
   liveActualStartTime    DateTime?
   liveActualEndTime      DateTime?
   liveScheduledStartTime DateTime?
@@ -81,7 +82,7 @@ model Video {
   width                  Int?
   height                 Int?
   duration               Int?
-  subtitles              SubtitlesOnVideos[]
+  subtitles              String?
   filesize               Int?
   fps                    Int?
   isHDR                  Boolean?
@@ -90,20 +91,6 @@ model Video {
   // Meta properties
   lastUpdatedAt          DateTime
   collections            VideosOnCollections[]
-}
-
-model Languages {
-  name   String              @id
-  videos SubtitlesOnVideos[]
-}
-
-model SubtitlesOnVideos {
-  video      Video     @relation(fields: [videoId], references: [id])
-  videoId    String
-  language   Languages @relation(fields: [languageId], references: [name])
-  languageId String
-
-  @@id([videoId, languageId])
 }
 
 model Tag {

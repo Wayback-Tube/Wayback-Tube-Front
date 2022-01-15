@@ -1,21 +1,18 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaToAPIVideo, APIVideo } from "helpers/api";
+import { PrismaToAPIVideo, APIVideo, APIMessageResponse } from "helpers/api";
 import prisma from "helpers/prisma";
 import {
-  YouTubeDataChannel,
-  YouTubeDataVideo,
   YouTubeToPrismaChannel,
   YouTubeToPrismaVideo,
 } from "helpers/youtubeApi";
 import { fetchFileJson, fileToUpdatePrisma } from "helpers/fileJson";
-import { downloadVideoArchive } from "helpers/ytdlp";
-
-export type APIVideoPost = {};
+import { downloadChannelThumbnail, downloadVideoArchive } from "helpers/ytdlp";
+import { fetchYouTubeVideo, fetchYouTubeChannel } from "helpers/youtubeApi";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<APIVideo | APIVideoPost | null>
+  res: NextApiResponse<APIVideo | APIMessageResponse >
 ) {
   const { videoID } = req.query;
 
@@ -32,7 +29,7 @@ export default async function handler(
         res.status(200).json(PrismaToAPIVideo(video, channel));
       }
     } else {
-      res.status(404).json(null);
+      res.status(404).json({message: "Not Found: The video has not yet being archived. To archive it, rerun this query with the method POST."});
     }
   } else if (req.method === "POST") {
     const fetchYouTubeVideoResponse = await fetchYouTubeVideo(`${videoID}`);
@@ -54,14 +51,18 @@ export default async function handler(
         });
 
         if (prismaChannel.id === channel.id) {
-
           const defaultFileJson = fetchFileJson(youtubeVideo.id);
-         
+
           // Create the new channel in Prisma
           const video = YouTubeToPrismaVideo(
             youtubeVideo,
-            channel.id,
+            channel,
             defaultFileJson
+          );
+
+          downloadChannelThumbnail(
+            youtubeChannel.snippet.thumbnails.high.url,
+            channel.id
           );
 
           const prismaVideo = await prisma.video.upsert({
@@ -71,34 +72,24 @@ export default async function handler(
           });
 
           if (prismaVideo.id === video.id) {
-            res.status(200).json(null);
+            res.status(200).json({message: "Success!"});
             downloadVideoArchive(video.id).then(() => {
               fileToUpdatePrisma(video.id);
             });
+          } else {
+            res.status(500).json({message: "Internal error: the video entry couldn't be created in the database."});
           }
+        } else {
+          res.status(500).json({message: "Internal error: the channel entry couldn't be created in the database."});
         }
+      } else {
+        res.status(410).json({message: "Gone: The video exists, but YouTube can't find the channel... What?"});
       }
+    } else {
+      res.status(410).json({message: "Gone: The target resource is no longer available at the origin. The video is either private, has been deleted, or the ID is unvalid."
+      });
     }
-
-    res.status(200).json(null);
   } else {
-    res.status(404).json(null);
+    res.status(405).json({message: "Method Not Allowed: The method received in the request-line is known by the origin server but not supported by the target resource."});
   }
-}
-
-async function fetchYouTubeVideo(id: string): Promise<YouTubeDataVideo> {
-  const part =
-    "contentDetails,id,liveStreamingDetails,snippet,statistics,status";
-  const key = process.env.YOUTUBE_API_KEY;
-  const url = `https://youtube.googleapis.com/youtube/v3/videos?part=${part}&id=${id}&key=${key}`;
-  const res = await fetch(url);
-  return await res.json();
-}
-
-async function fetchYouTubeChannel(id: string): Promise<YouTubeDataChannel> {
-  const part = "id,snippet,statistics";
-  const key = process.env.YOUTUBE_API_KEY;
-  const url = `https://youtube.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
-  const res = await fetch(url);
-  return await res.json();
 }

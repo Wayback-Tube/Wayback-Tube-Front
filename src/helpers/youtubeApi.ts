@@ -27,9 +27,9 @@ export type YouTubeDataVideo = {
         madeForKids: boolean;
       };
       statistics: {
-        viewCount: string;
-        likeCount: string;
-        commentCount: string;
+        viewCount?: string;
+        likeCount?: string;
+        commentCount?: string;
       };
       liveStreamingDetails?: {
         actualStartTime?: string;
@@ -50,7 +50,7 @@ export type YouTubeDataChannel = {
         description: string;
         customUrl?: string;
         publishedAt: string;
-        thumbnails: [high: { url: string }];
+        thumbnails: { high: { url: string } };
         country: string;
       };
       statistics: {
@@ -79,7 +79,7 @@ export function YouTubeToPrismaChannel(
 
 export function YouTubeToPrismaVideo(
   video: YouTubeDataVideo["items"][number],
-  channelId: string,
+  channel: Channel,
   file: MetaJson
 ): Video {
   return {
@@ -87,16 +87,23 @@ export function YouTubeToPrismaVideo(
     title: video.snippet.title,
     description: video.snippet.description,
     publishedAt: new Date(video.snippet.publishedAt),
-    channelId: channelId,
+    channelId: channel.id,
+    channelTitle: channel.title,
     category: YouTubeCategoryToString(video.snippet.categoryId),
     is3D: video.contentDetails.dimension === "3d",
     is360: video.contentDetails.projection === "360",
     isUnlisted: video.status.privacyStatus === "unlisted",
     isCC: video.status.license === "creativeCommon",
     isForKids: video.status.madeForKids,
-    viewCount: parseInt(video.statistics.viewCount),
-    likeCount: parseInt(video.statistics.likeCount),
-    commentCount: parseInt(video.statistics.commentCount),
+    viewCount: video.statistics.viewCount
+      ? parseInt(video.statistics.viewCount)
+      : null,
+    likeCount: video.statistics.likeCount
+      ? parseInt(video.statistics.likeCount)
+      : null,
+    commentCount: video.statistics.commentCount
+      ? parseInt(video.statistics.commentCount)
+      : null,
     liveActualStartTime: if2(video.liveStreamingDetails?.actualStartTime, null),
     liveActualEndTime: if2(video.liveStreamingDetails?.actualEndTime, null),
     liveScheduledStartTime: if2(
@@ -108,6 +115,7 @@ export function YouTubeToPrismaVideo(
       null
     ),
     duration: file.duration,
+    subtitles: file.subtitles,
     width: file.width,
     height: file.height,
     filesize: file.filesize,
@@ -154,4 +162,23 @@ export function YouTubeCategoryToString(categoryid: number): string {
     "Shows",
     "Trailers",
   ][categoryid];
+}
+
+export async function fetchYouTubeVideo(id: string): Promise<YouTubeDataVideo> {
+  const part =
+    "contentDetails,id,liveStreamingDetails,snippet,statistics,status";
+  const key = process.env.YOUTUBE_API_KEY;
+  const url = `https://youtube.googleapis.com/youtube/v3/videos?part=${part}&id=${id}&key=${key}`;
+  const res = await fetch(url);
+  return await res.json();
+}
+
+export async function fetchYouTubeChannel(
+  id: string
+): Promise<YouTubeDataChannel> {
+  const part = "id,snippet,statistics";
+  const key = process.env.YOUTUBE_API_KEY;
+  const url = `https://youtube.googleapis.com/youtube/v3/channels?part=${part}&id=${id}&key=${key}`;
+  const res = await fetch(url);
+  return await res.json();
 }

@@ -3,8 +3,10 @@ import { APIVideo, APIVideoPreview } from "helpers/api";
 import Head from "next/head";
 import useSWR from "swr";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react"
 import {
   fetcher,
+  fetcherPOST,
   prettyDate,
   prettyDateTime,
   prettyDateTimeDiff,
@@ -14,23 +16,56 @@ import {
 import BubbleLabel from "components/BubbleLabel";
 import Link from "next/link";
 import VideoError from "components/VideoError";
+import { useState } from "react";
+import { getCookieParser } from "next/dist/server/api-utils";
 
 type Props = {
   video: APIVideo;
 };
 
-
 export default function Watch({ video }: Props): JSX.Element {
   const router = useRouter();
+  const { data: session, status } = useSession()
 
+  if (session) {
+    console.log(session);
+  }
 
-  const url2 = "/api/videos/";
-  const { data: data2, error: error2 } = useSWR(url2, fetcher);
+  // Get the list of videos
+  const { data, error } = useSWR("/api/videos/", fetcher);
 
-  const videoPreviews: APIVideoPreview[] = data2;
+  // Request video archival
+  const [id, setId] = useState(null);
+  const { data: dataPost, error: errorPost } = useSWR(
+    id ? [`/api/videos/${id}`, "qdqsdkqsldkqsl"] : null,
+    fetcherPOST
+  );
+
+  if (errorPost) {
+    return <p>Error</p>;
+  }
+
+  const videoPreviews: APIVideoPreview[] = data;
 
   if (!video.id) {
-    return <div>failed to load</div>;
+    return (
+      <div>
+        <p>
+          This video hasn&rsquo;t been archived yet or the ID doesn&rsquo;t
+          exists.
+        </p>
+        <iframe
+          width="560"
+          height="315"
+          src={`https://www.youtube-nocookie.com/embed/${router.query.videoID}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+        <button onClick={() => setId(router.query.videoID)}>Archive it!</button>
+      </div>
+    );
   } else {
     const shortDescription =
       video.youtube.description.length < 150
@@ -101,7 +136,7 @@ export default function Watch({ video }: Props): JSX.Element {
                     ))}
                   </video>
                 ) : (
-                  <VideoError/>
+                  <VideoError />
                 )}
 
                 <div className="p-6">
@@ -340,7 +375,7 @@ export default function Watch({ video }: Props): JSX.Element {
               <h3 className="uppercase text-accent dark:text-accent text-center font-bold mb-2">
                 Latest Videos
               </h3>
-              {error2 ? (
+              {error ? (
                 <div>failed to load</div>
               ) : !videoPreviews ? (
                 ""
@@ -358,7 +393,7 @@ export default function Watch({ video }: Props): JSX.Element {
                                 alt={video.title}
                               />
                             ) : (
-                              <VideoError/>
+                              <VideoError />
                             )}
                             {video.duration ? (
                               <p className="absolute bottom-1 right-1 bg-light-00dp dark:bg-dark-00dp px-2 rounded-full text-xs text-light-emphasis dark:text-dark-emphasis">
@@ -407,4 +442,4 @@ export async function getServerSideProps(context) {
       props: { video: data },
     };
   }
-};
+}

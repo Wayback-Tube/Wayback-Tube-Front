@@ -80,10 +80,17 @@ export function if2(value: any, fallback: any) {
 }
 
 export async function fetcher(url: string) {
-  const res = await fetch(url);
+  const res = await fetch(url, {method: "GET"});
   const json = await res.json();
   return json;
 }
+
+export async function fetcherPOST(url: string, auth: string) {
+  const res = await fetch(url, {method: "POST", headers: {authorization: `Bearer ${auth}`}});
+  const json = await res.json();
+  return json;
+}
+
 
 /**
  * @author Anatoly Mironov (mirontoli)

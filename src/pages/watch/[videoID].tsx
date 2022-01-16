@@ -3,7 +3,7 @@ import { APIVideo, APIVideoPreview } from "helpers/api";
 import Head from "next/head";
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 import {
   fetcher,
   fetcherPOST,
@@ -17,7 +17,6 @@ import BubbleLabel from "components/BubbleLabel";
 import Link from "next/link";
 import VideoError from "components/VideoError";
 import { useState } from "react";
-import { getCookieParser } from "next/dist/server/api-utils";
 
 type Props = {
   video: APIVideo;
@@ -25,11 +24,7 @@ type Props = {
 
 export default function Watch({ video }: Props): JSX.Element {
   const router = useRouter();
-  const { data: session, status } = useSession()
-
-  if (session) {
-    console.log(session);
-  }
+  const { data: session } = useSession();
 
   // Get the list of videos
   const { data, error } = useSWR("/api/videos/", fetcher);
@@ -37,17 +32,18 @@ export default function Watch({ video }: Props): JSX.Element {
   // Request video archival
   const [id, setId] = useState(null);
   const { data: dataPost, error: errorPost } = useSWR(
-    id ? [`/api/videos/${id}`, "qdqsdkqsldkqsl"] : null,
+    id ? [`/api/videos/${id}`, session?.sessionToken] : null,
     fetcherPOST
   );
-
-  if (errorPost) {
-    return <p>Error</p>;
-  }
 
   const videoPreviews: APIVideoPreview[] = data;
 
   if (!video.id) {
+    if (id && errorPost) return <h1>Something went wrong! (errorPost)</h1>;
+    if (id && !dataPost) return <h1>Loading... (dataPost)</h1>;
+
+    if (id && dataPost) router.reload();
+
     return (
       <div>
         <p>
@@ -429,8 +425,6 @@ export default function Watch({ video }: Props): JSX.Element {
 export async function getServerSideProps(context) {
   const videoID = context.params.videoID;
   if (videoID) {
-    console.log(`${process.env.NEXTAUTH_URL}/api/videos/${videoID}`);
-
     fetch(`${process.env.NEXTAUTH_URL}/api/videos/${videoID}`, {
       method: "GET",
     });

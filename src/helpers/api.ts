@@ -1,5 +1,6 @@
-import { Channel, Video } from "@prisma/client";
+import { Channel, Video, Collection} from "@prisma/client";
 import { getLanguage } from "helpers/tools";
+import Collections from "pages/collections";
 
 export type APIMessageResponse = {
   message: string;
@@ -21,8 +22,15 @@ export type APICollection = {
   collectionID: string;
   name: string;
   userId: string;
-  videos: string[];
+  videos: APIVideosOnCollections[];
 };
+
+export type APIVideosOnCollections = {
+  video: APIYouTubeVideo;
+  videoID: string;
+  collection: APICollection;
+  collectionID: string;
+}
 
 export type APIThumbnail = {
   url: string;
@@ -187,5 +195,14 @@ export function PrismaToAPIVideo(video: Video, channel: Channel): APIVideo {
       lastUpdatedAt: video.lastUpdatedAt.toISOString(),
       collectionCount: 0,
     },
+  };
+}
+
+export function PrismaToAPICollection(collection: Collection): APICollection {
+  return {
+    collectionID: collection.id,
+    name: collection.name,
+    userId: collection.userId,
+    videos: collection.videos,
   };
 }

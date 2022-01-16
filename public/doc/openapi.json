@@ -1,0 +1,641 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Wayback Tube API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://waybacktube.r-entries.com/api",
+      "description": "Main server"
+    }
+  ],
+  "paths": {
+    "/videos/": {
+      "get": {
+        "summary": "Returns the list of recent videos",
+        "responses": {
+          "200": {
+            "description": "A list of videos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "dQw4w9WgXcQ"
+                      },
+                      "watchUrl": {
+                        "type": "string",
+                        "example": "https://waybacktube.r-entries.com/watch/dQw4w9WgXcQ"
+                      },
+                      "title": {
+                        "type": "string",
+                        "example": "Rick Astley - Never Gonna Give You Up (Official Music Video)"
+                      },
+                      "channel": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Rick Astley"
+                          },
+                          "thumbnail": {
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "type": "string",
+                                "example": "https://staticwaybacktube.r-entries.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw.webp",
+                                "description": "The image's URL. The format is always WebP."
+                              },
+                              "width": {
+                                "type": "integer",
+                                "example": 800,
+                                "description": "The image's width. It should always be 800."
+                              },
+                              "height": {
+                                "type": "integer",
+                                "example": 800,
+                                "description": "The image's height. It should always be 800."
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "duration": {
+                        "type": "integer",
+                        "example": 213,
+                        "description": "The length of the video. The value is specified in seconds."
+                      },
+                      "thumbnail": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "example": "https://staticwaybacktube.r-entries.com/videos/dQw4w9WgXcQ.json",
+                            "description": "The image's URL. The format should always be WebP."
+                          },
+                          "width": {
+                            "type": "integer",
+                            "example": 1280,
+                            "description": "The image's width. It should always be 1280."
+                          },
+                          "height": {
+                            "type": "integer",
+                            "example": 720,
+                            "description": "The image's height. It should always be 720."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos/{videoID}": {
+      "post": {
+        "summary": "Requests a video's archival using its videoID",
+        "parameters": [
+          {
+            "name": "videoID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "dQw4w9WgXcQ"
+            },
+            "description": "The YouTube ID of the video"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.The request has been fulfilled and the resource is now available. This happens if the video was already archived."
+          },
+          "202": {
+            "description": "ACCEPTED. The request has been accepted for processing, but the processing has not been completed. The request might or might not eventually be acted upon, as it might be disallowed when processing actually takes place."
+          },
+          "403": {
+            "description": "FORBIDDEN. The server understood the request but refuses to authorize it. If authentication credentials were provided in the request, the server considers them insufficient to grant access. The client SHOULD NOT automatically repeat the request with the same credentials. The client MAY repeat the request with new or different credentials. However, a request might be forbidden for reasons unrelated to the credentials."
+          },
+          "410": {
+            "description": "GONE. The target resource is no longer available at the origin. The video is either private, has been deleted, or the ID is unvalid."
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns a video by its videoID",
+        "parameters": [
+          {
+            "name": "videoID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "dQw4w9WgXcQ"
+            },
+            "description": "The YouTube ID of the video"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A video",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "youtube": {
+                      "type": "object",
+                      "properties": {
+                        "videoID": {
+                          "type": "string",
+                          "example": "dQw4w9WgXcQ",
+                          "description": "The ID that YouTube uses to uniquely identify the video."
+                        },
+                        "title": {
+                          "type": "string",
+                          "example": "Rick Astley - Never Gonna Give You Up (Official Music Video)",
+                          "description": "The video's title. The property value can contain any valid UTF-8 characters except < and >\"",
+                          "maxLength": 100
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "The video's description. The property can contain any valid UTF-8 characters except < and >.",
+                          "maxLength": 5000,
+                          "example": "The official video for “Never Gonna Give You Up” by Rick Astley\n \n“Never Gonna Give You Up” was a global smash on its release in July 1987, topping the charts in 25 countries including Rick’s native UK and the US Billboard Hot 100.  It also won the Brit Award for Best single in 1988. Stock Aitken and Waterman wrote and produced the track which was the lead-off single and lead track from Rick’s debut LP “Whenever You Need Somebody”.  The album was itself a UK number one and would go on to sell over 15 million copies worldwide.\n\nThe legendary video was directed by Simon West – who later went on to make Hollywood blockbusters such as Con Air, Lara Croft – Tomb Raider and The Expendables 2.  The video passed the 1bn YouTube views milestone on 28 July 2021.\n\nSubscribe to the official Rick Astley YouTube channel: https://RickAstley.lnk.to/YTSubID\n\nFollow Rick Astley:\nFacebook: https://RickAstley.lnk.to/FBFollowID \nTwitter: https://RickAstley.lnk.to/TwitterID \nInstagram: https://RickAstley.lnk.to/InstagramID \nWebsite: https://RickAstley.lnk.to/storeID \nTikTok: https://RickAstley.lnk.to/TikTokID\n\nListen to Rick Astley:\nSpotify: https://RickAstley.lnk.to/SpotifyID \nApple Music: https://RickAstley.lnk.to/AppleMusicID \nAmazon Music: https://RickAstley.lnk.to/AmazonMusicID \nDeezer: https://RickAstley.lnk.to/DeezerID \n\nLyrics:\nWe’re no strangers to love\nYou know the rules and so do I\nA full commitment’s what I’m thinking of\nYou wouldn’t get this from any other guy\n\nI just wanna tell you how I’m feeling\nGotta make you understand\n\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\n\nWe’ve known each other for so long\nYour heart’s been aching but you’re too shy to say it\nInside we both know what’s been going on\nWe know the game and we’re gonna play it\n\nAnd if you ask me how I’m feeling\nDon’t tell me you’re too blind to see\n\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\n\n#RickAstley #NeverGonnaGiveYouUp #WheneverYouNeedSomebody #OfficialMusicVideo"
+                        },
+                        "publishedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2009-10-25T06:57:33Z",
+                          "description": "The date and time that the video was published. Note that this time might be different than the time that the video was uploaded. For example, if a video is uploaded as a private video and then made public at a later time, this property will specify the time that the video was made public. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format."
+                        },
+                        "channel": {
+                          "type": "object",
+                          "properties": {
+                            "channelID": {
+                              "type": "string",
+                              "example": "UCuAXFkgsw1L7xaCfnd5JJOw",
+                              "description": "The ID that YouTube uses to uniquely identify the channel."
+                            },
+                            "title": {
+                              "type": "string",
+                              "example": "Rick Astley",
+                              "description": "The channel's title."
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Official YouTube channel for Rick Astley.",
+                              "description": "The channel's description.",
+                              "maxLength": 1000
+                            },
+                            "publishedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2015-02-01T16:32:30Z",
+                              "description": "The date and time that the channel was created. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format."
+                            },
+                            "customURL": {
+                              "type": "string",
+                              "example": "rickastleycoukofficial",
+                              "description": "The channel's custom URL. The [YouTube Help Center](https://support.google.com/youtube/answer/2657968) explains eligibility requirements for getting a custom URL as well as how to set up the URL."
+                            },
+                            "thumbnail": {
+                              "type": "object",
+                              "properties": {
+                                "url": {
+                                  "type": "string",
+                                  "example": "https://staticwaybacktube.r-entries.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw.webp",
+                                  "description": "The image's URL. The format is always WebP."
+                                },
+                                "width": {
+                                  "type": "integer",
+                                  "example": 800,
+                                  "description": "The image's width. It should always be 800."
+                                },
+                                "height": {
+                                  "type": "integer",
+                                  "example": 800,
+                                  "description": "The image's height. It should always be 800."
+                                }
+                              }
+                            },
+                            "viewCount": {
+                              "type": "integer",
+                              "example": 1445315394,
+                              "description": "The number of times the channel has been viewed."
+                            },
+                            "subscriberCount": {
+                              "type": "integer",
+                              "example": 2810000,
+                              "description": "The number of subscribers that the channel has. This value is rounded down to three significant figures. Please see the [Revision History](https://developers.google.com/youtube/v3/revision_history#release_notes_09_10_2019) or the [YouTube Help Center](https://support.google.com/youtube/answer/6051134) for more details about how subscriber counts are rounded."
+                            },
+                            "videoCount": {
+                              "type": "integer",
+                              "example": 87,
+                              "description": "The number of public videos uploaded to the channel. Note that the value reflects the count of the channel's public videos only, even to owners. This behavior is consistent with counts shown on the YouTube website."
+                            }
+                          }
+                        },
+                        "tags": {
+                          "type": "array",
+                          "description": "A list of keyword tags associated with the video. The combined length of all the tags' text should be bellow 500 characters.",
+                          "items": {
+                            "type": "string",
+                            "example": "Never Gonna Give You Up",
+                            "description": "Tags may contain spaces."
+                          },
+                          "example": [
+                            "rick astley",
+                            "Never Gonna Give You Up",
+                            "nggyu",
+                            "never gonna give you up lyrics",
+                            "rick rolled",
+                            "the boys soundtrack",
+                            "the boys amazon prime",
+                            "Never gonna give you up the boys",
+                            "official",
+                            "Rick Roll",
+                            "music video",
+                            "Rick Astley album",
+                            "rick astley official",
+                            "together forever",
+                            "Whenever You Need Somebody",
+                            "rickrolled",
+                            "WRECK-IT RALPH 2",
+                            "Fortnite song",
+                            "Fortnite event",
+                            "Fortnite dance",
+                            "fortnite never gonna give you up",
+                            "rick astley never gonna give you up",
+                            "rick astley never gonna give you up lyrics"
+                          ]
+                        },
+                        "defaultLanguage": {
+                          "type": "string",
+                          "example": "en",
+                          "description": "The language of the text in the video resource's snippet."
+                        },
+                        "category": {
+                          "type": "string",
+                          "example": "Music",
+                          "description": "The YouTube [video category](https://developers.google.com/youtube/v3/docs/videoCategories/list) associated with the video."
+                        },
+                        "duration": {
+                          "type": "integer",
+                          "example": 213,
+                          "description": "The length of the video. The value is specified in seconds."
+                        },
+                        "is3D": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "Indicates whether the video is available in 3D."
+                        },
+                        "is360": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "Indicates whether the video is available in 360 projection."
+                        },
+                        "isUnlisted": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "Indicates whether the video is unlisted. If false, the video is public."
+                        },
+                        "isCC": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "Indicates whether the video is licensed under creative Common. If false, the video is by default licensed under YouTube licensing."
+                        },
+                        "isForKids": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "This value indicates whether the video is designated as child-directed, and it contains the current \"made for kids\" status of the video. For example, the status might be determined based on the value of the selfDeclaredMadeForKids property. See the [YouTube Help Center](https://support.google.com/youtube/answer/9527654) for more information about setting the audience for your channel, videos, or broadcasts."
+                        },
+                        "subtitles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "en",
+                            "description": "The name of the language."
+                          },
+                          "example": [],
+                          "description": "The list of available languages for the subtitles of this video."
+                        },
+                        "viewCount": {
+                          "type": "integer",
+                          "example": 1126723411,
+                          "description": "The number of times the video has been viewed."
+                        },
+                        "likeCount": {
+                          "type": "integer",
+                          "example": 13100694,
+                          "description": "The number of users who have indicated that they liked the video."
+                        },
+                        "commentCount": {
+                          "type": "integer",
+                          "example": 2044697,
+                          "description": "The number of comments for the video."
+                        },
+                        "liveActualStartTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": null,
+                          "description": "The time that the broadcast actually started. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format. This value will not be available until the broadcast begins."
+                        },
+                        "liveActualEndTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": null,
+                          "description": "The time that the broadcast actually ended. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format. This value will not be available until the broadcast begins."
+                        },
+                        "liveScheduledStartTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": null,
+                          "description": "The time that the broadcast is scheduled to begin. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format. This value will not be available until the broadcast begins."
+                        },
+                        "liveScheduledEndTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": null,
+                          "description": "The time that the broadcast is scheduled to end. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format. This value will not be available until the broadcast begins."
+                        }
+                      }
+                    },
+                    "file": {
+                      "type": "object",
+                      "properties": {
+                        "videoUrl": {
+                          "type": "string",
+                          "example": "https://staticwaybacktube.r-entries.com/videos/dQw4w9WgXcQ.mp4"
+                        },
+                        "thumbnail": {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string",
+                              "example": "https://staticwaybacktube.r-entries.com/videos/dQw4w9WgXcQ.json",
+                              "description": "The image's URL. The format should always be WebP."
+                            },
+                            "width": {
+                              "type": "integer",
+                              "example": 1280,
+                              "description": "The image's width. It should always be 1280."
+                            },
+                            "height": {
+                              "type": "integer",
+                              "example": 720,
+                              "description": "The image's height. It should always be 720."
+                            }
+                          }
+                        },
+                        "metadataUrl": {
+                          "type": "string",
+                          "example": "https://staticwaybacktube.r-entries.com/videos/dQw4w9WgXcQ.json"
+                        },
+                        "width": {
+                          "type": "integer",
+                          "example": 1920,
+                          "description": "The video's horizontal size in pixels."
+                        },
+                        "height": {
+                          "type": "integer",
+                          "example": 1080,
+                          "description": "The video's vertical size in pixels."
+                        },
+                        "filesize": {
+                          "type": "integer",
+                          "example": 97428716,
+                          "description": "Approximate size of the file in bytes."
+                        },
+                        "fps": {
+                          "type": "integer",
+                          "example": 25,
+                          "description": "The video stream frame rate, in frames per second."
+                        },
+                        "isHDR": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "Indicates if the video is available in HDR."
+                        },
+                        "vcodec": {
+                          "type": "string",
+                          "example": "avc1.640028",
+                          "description": "The video codex used. Valid values for this property are: av01.*, vp9, vp9.2*, avc1.*."
+                        },
+                        "acodec": {
+                          "type": "string",
+                          "example": "opus",
+                          "description": "The audio codex used. This value should always be opus."
+                        }
+                      }
+                    },
+                    "wayback": {
+                      "type": "object",
+                      "properties": {
+                        "archivedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2022-01-05T06:57:33Z",
+                          "description": "The time that the video and metadata were first downloaded. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format. This value will not be available until the broadcast begins."
+                        },
+                        "archivedBy": {
+                          "type": "string",
+                          "example": "cky16ydyc0006liivd2hanb8u",
+                          "description": "The ID of the user that first requested the video to be archived."
+                        },
+                        "lastUpdatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2022-01-05T06:57:33Z",
+                          "description": "The time the metadata were updated. The value is specified in [ISO 8601](https://www.w3.org/TR/NOTE-datetime) format. This value will not be available until the broadcast begins."
+                        },
+                        "collectionCount": {
+                          "type": "integer",
+                          "example": 1,
+                          "description": "The number of times the video has been included in a collection on Wayback Tube."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN. The server understood the request but refuses to authorize it. If authentication credentials were provided in the request, the server considers them insufficient to grant access. The client SHOULD NOT automatically repeat the request with the same credentials. The client MAY repeat the request with new or different credentials. However, a request might be forbidden for reasons unrelated to the credentials."
+          }
+        }
+      }
+    },
+    "/collections/{collectionID}": {
+      "get": {
+        "summary": "Returns a collection using its ID (This is not yet implemented)",
+        "parameters": [
+          {
+            "name": "collectionID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "cky1vxjdv02198xiv5369l35v"
+            },
+            "description": "The collection's ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. A collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "collectionID": {
+                      "type": "string",
+                      "example": "cky1vxjdv02198xiv5369l35v",
+                      "description": "The ID that Wayback Tube uses to uniquely identify the collection."
+                    },
+                    "userId": {
+                      "type": "string",
+                      "example": "cky1853e90006y9ivstc15vih",
+                      "description": "The ID of the user to which the collection belong."
+                    },
+                    "videos": {
+                      "type": "array",
+                      "example": [
+                        "dQw4w9WgXcQ",
+                        "3KAmg9oCwyQ",
+                        "As8lb0EadGo",
+                        "7uuGzVBlhKY",
+                        "Gag5JExJrBE"
+                      ],
+                      "description": "The list of videos' IDs.",
+                      "items": {
+                        "type": "string",
+                        "example": "dQw4w9WgXcQ",
+                        "description": "The ID of the video."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN. The server understood the request but refuses to authorize it. If authentication credentials were provided in the request, the server considers them insufficient to grant access. The client SHOULD NOT automatically repeat the request with the same credentials. The client MAY repeat the request with new or different credentials. However, a request might be forbidden for reasons unrelated to the credentials."
+          }
+        }
+      }
+    },
+    "/user/{userID}": {
+      "post": {
+        "summary": "Requests the creation of a new collection for a user, given the userID (This is not yet implemented)",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "cky1853e90006y9ivstc15vih"
+            },
+            "description": "The user's ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. A new collection has been created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userID": {
+                      "type": "string",
+                      "example": "cky1853e90006y9ivstc15vih",
+                      "description": "The ID that Wayback Tube uses to uniquely identify the user."
+                    },
+                    "collectionID": {
+                      "type": "string",
+                      "example": "cky1vxjdv02198xiv5369l35v",
+                      "description": "The ID that Wayback Tube uses to uniquely identify the collection."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN. The server understood the request but refuses to authorize it. If authentication credentials were provided in the request, the server considers them insufficient to grant access. The client SHOULD NOT automatically repeat the request with the same credentials. The client MAY repeat the request with new or different credentials. However, a request might be forbidden for reasons unrelated to the credentials."
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns a user using its userID (This is not yet implemented)",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "cky1853e90006y9ivstc15vih"
+            },
+            "description": "The user's ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. A user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userID": {
+                      "type": "string",
+                      "example": "cky1853e90006y9ivstc15vih",
+                      "description": "The ID that Wayback Tube uses to uniquely identify the user."
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "smith@example.com",
+                      "description": "The email address that was used during the account's creation."
+                    },
+                    "collections": {
+                      "type": "array",
+                      "example": [
+                        "cky1vxjdv02198xiv5369l35v",
+                        "jdv0iv5369l35vvcky12198xx",
+                        "jdv01269l1il5346rasqdmza1",
+                        "x35vv8jdv09vc3iv53ky98x19",
+                        "535vvc369l12xxxxjdv0iv196"
+                      ],
+                      "description": "The list of collections' IDs.",
+                      "items": {
+                        "type": "string",
+                        "example": "cky1vxjdv02198xiv5369l35v",
+                        "description": "The ID of the collection."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN. The server understood the request but refuses to authorize it. If authentication credentials were provided in the request, the server considers them insufficient to grant access. The client SHOULD NOT automatically repeat the request with the same credentials. The client MAY repeat the request with new or different credentials. However, a request might be forbidden for reasons unrelated to the credentials."
+          }
+        }
+      }
+    }
+  }
+}

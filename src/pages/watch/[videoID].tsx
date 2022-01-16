@@ -206,9 +206,11 @@ export default function Watch({ video }: Props): JSX.Element {
                       <span className="material-icons !text-base">
                         thumb_up
                       </span>
-                      {video.id ? video.youtube?.likeCount
-                        ? prettyNumber(video.youtube?.likeCount)
-                        : "Likes disabled" : prettyNumber(undefined)}
+                      {video.id
+                        ? video.youtube?.likeCount
+                          ? prettyNumber(video.youtube?.likeCount)
+                          : "Likes disabled"
+                        : prettyNumber(undefined)}
                     </p>
 
                     {video.file?.videoUrl ? (
@@ -419,39 +421,39 @@ export default function Watch({ video }: Props): JSX.Element {
             ) : (
               <>
                 {videoPreviews.map((video) => (
-                  <div key={video.id} className="cursor-pointer">
-                    <Link href={video.watchUrl} passHref>
-                      <div className="grid grid-cols-2 gap-x-4">
-                        <div className="grid relative">
-                          {video.thumbnail ? (
+                  <Link key={video.id} href={video.watchUrl} passHref>
+                    <div className="grid grid-cols-2 gap-x-4 cursor-pointer">
+                      <div className="grid relative">
+                        {video.thumbnail ? (
+                          <>
                             <img
                               className="rounded-md"
                               src={video.thumbnail.url}
                               alt={video.title}
                             />
-                          ) : (
-                            <VideoError />
-                          )}
-                          {video.duration ? (
-                            <p className="absolute bottom-1 right-1 bg-light-00dp dark:bg-dark-00dp px-2 rounded-full text-xs text-light-emphasis dark:text-dark-emphasis">
-                              {prettyDuration(video.duration)}
-                            </p>
-                          ) : (
-                            ""
-                          )}
-                        </div>
-
-                        <div>
-                          <p className="text-light-emphasis dark:text-dark-emphasis font-bold max-line">
-                            {video.title.length > 30
-                              ? video.title.substring(0, 27) + "..."
-                              : video.title}
-                          </p>
-                          <p className="text-sm">{video.channel.title}</p>
-                        </div>
+                            {video.duration ? (
+                              <p className="absolute bottom-1 right-1 bg-light-00dp dark:bg-dark-00dp px-2 rounded-full text-xs text-light-emphasis dark:text-dark-emphasis">
+                                {prettyDuration(video.duration)}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                          </>
+                        ) : (
+                          <VideoError />
+                        )}
                       </div>
-                    </Link>
-                  </div>
+
+                      <div>
+                        <p className="text-light-emphasis dark:text-dark-emphasis font-bold max-line">
+                          {video.title.length > 30
+                            ? video.title.substring(0, 27) + "..."
+                            : video.title}
+                        </p>
+                        <p className="text-sm">{video.channel.title}</p>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </>
             )}

@@ -55,7 +55,7 @@ export type YouTubeDataChannel = {
       };
       statistics: {
         viewCount: string;
-        subscriberCount: string;
+        subscriberCount?: string;
         videoCount: string;
       };
     }
@@ -72,7 +72,9 @@ export function YouTubeToPrismaChannel(
     publishedAt: new Date(channel.snippet.publishedAt),
     customUrl: if2(channel.snippet.customUrl, null),
     viewCount: parseInt(channel.statistics.viewCount),
-    subscriberCount: parseInt(channel.statistics.subscriberCount),
+    subscriberCount: channel.statistics.subscriberCount
+      ? parseInt(channel.statistics.subscriberCount)
+      : null,
     videoCount: parseInt(channel.statistics.videoCount),
   };
 }

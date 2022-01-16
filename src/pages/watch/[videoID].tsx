@@ -37,7 +37,12 @@ export default function Watch({ video }: Props): JSX.Element {
   );
 
   const videoPreviews: APIVideoPreview[] = data;
-  if (archiveId && dataPost) router.reload();
+  if (archiveId && dataPost) {
+    setArchiveId("");
+    archiveId = null;
+    dataPost = null;
+    router.push(`/watch/${router.query.videoID}`);
+  }
 
   return (
     <>
@@ -262,8 +267,11 @@ export default function Watch({ video }: Props): JSX.Element {
                   {video.id ? video.youtube?.channel.title : "Channel's Name"}
                 </h3>
                 <p className="text-light-emphasis dark:text-dark-emphasis">
-                  {prettyNumber(video.youtube?.channel.subscriberCount)}{" "}
-                  suscribers
+                  {video.youtube?.channel.subscriberCount
+                    ? `${prettyNumber(
+                        video.youtube?.channel.subscriberCount
+                      )} suscribers`
+                    : "Subscriber count hidden"}
                 </p>
                 {video.id ? (
                   video.youtube?.description.length < 300 ? (

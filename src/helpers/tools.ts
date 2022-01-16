@@ -1,5 +1,6 @@
-export function prettyNumber(number: number): string {
-  return number.toLocaleString();
+export function prettyNumber(number: number | undefined): string {
+  if (number) return number.toLocaleString();
+  return "XXX";
 }
 
 export function prettyDuration(seconds: number): string {
@@ -20,12 +21,16 @@ export function prettyDuration(seconds: number): string {
   return result;
 }
 
-export function prettyDate(string: string): string {
-  const date = new Date(string);
-  const year = date.getUTCFullYear().toString().padStart(4, "0");
-  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}/${month}/${day}`;
+export function prettyDate(string: string | undefined): string {
+  if (string) {
+    const date = new Date(string);
+    const year = date.getUTCFullYear().toString().padStart(4, "0");
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}/${month}/${day}`;
+  } else {
+    return "XXXX/XX/XX"
+  }
 }
 
 export function prettyDateTime(string: string | null) {
@@ -80,17 +85,19 @@ export function if2(value: any, fallback: any) {
 }
 
 export async function fetcher(url: string) {
-  const res = await fetch(url, {method: "GET"});
+  const res = await fetch(url, { method: "GET" });
   const json = await res.json();
   return json;
 }
 
 export async function fetcherPOST(url: string, auth: string) {
-  const res = await fetch(url, {method: "POST", headers: {authorization: `Bearer ${auth}`}});
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { authorization: `Bearer ${auth}` },
+  });
   const json = await res.json();
   return json;
 }
-
 
 /**
  * @author Anatoly Mironov (mirontoli)

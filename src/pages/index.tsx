@@ -20,22 +20,24 @@ export default function Home(): JSX.Element {
           <div key={video.id} className="cursor-pointer">
             <Link href={video.watchUrl} passHref>
               <div className="grid gap-4">
-                <div className="grid relative rounded-md overflow-hidden aspect-video place-content-center">
+                <div className="grid relative rounded-md overflow-hidden aspect-video content-center">
                   {video.thumbnail ? (
-                    <img
-                      className="shadow-inner"
-                      src={video.thumbnail.url}
-                      alt={video.title}
-                    />
+                    <>
+                      <img
+                        className="shadow-inner"
+                        src={video.thumbnail.url}
+                        alt={video.title}
+                      />
+                      {video.duration ? (
+                        <p className="absolute bottom-1 right-1 bg-light-00dp dark:bg-dark-00dp px-2 rounded-full text-xs text-light-emphasis dark:text-dark-emphasis">
+                          {prettyDuration(video.duration)}
+                        </p>
+                      ) : (
+                        ""
+                      )}
+                    </>
                   ) : (
-                    <VideoError/>
-                  )}
-                  {video.duration ? (
-                    <p className="absolute bottom-1 right-1 bg-light-00dp dark:bg-dark-00dp px-2 rounded-full text-xs text-light-emphasis dark:text-dark-emphasis">
-                      {prettyDuration(video.duration)}
-                    </p>
-                  ) : (
-                    ""
+                    <VideoError />
                   )}
                 </div>
 

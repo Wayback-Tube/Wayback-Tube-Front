@@ -46,7 +46,7 @@ export type APIYouTubeChannel = {
   customURL: string | null;
   thumbnail: APIThumbnail;
   viewCount: number;
-  subscriberCount: number;
+  subscriberCount: number | null;
   videoCount: number;
 };
 

@@ -114,7 +114,7 @@ model Channel {
   publishedAt     DateTime
   customUrl       String?
   viewCount       Int
-  subscriberCount Int
+  subscriberCount Int?
   videoCount      Int
   videos          Video[]
 }

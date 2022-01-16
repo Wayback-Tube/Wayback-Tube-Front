@@ -12,7 +12,7 @@ import { fetchYouTubeVideo, fetchYouTubeChannel } from "helpers/youtubeApi";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<APIVideo | APIMessageResponse >
+  res: NextApiResponse<APIVideo | APIMessageResponse>
 ) {
   const { videoID } = req.query;
 
@@ -29,67 +29,107 @@ export default async function handler(
         res.status(200).json(PrismaToAPIVideo(video, channel));
       }
     } else {
-      res.status(404).json({message: "Not Found: The video has not yet being archived. To archive it, rerun this query with the method POST."});
+      res.status(404).json({
+        message:
+          "Not Found: The video has not yet being archived. To archive it, rerun this query with the method POST.",
+      });
     }
   } else if (req.method === "POST") {
-    const fetchYouTubeVideoResponse = await fetchYouTubeVideo(`${videoID}`);
+    if (req.headers.authorization) {
+      if (req.headers.authorization.startsWith("Bearer "))
+        req.headers.authorization = req.headers.authorization.substring(
+          "Bearer ".length
+        );
 
-    if (fetchYouTubeVideoResponse.items.length === 1) {
-      const youtubeVideo = fetchYouTubeVideoResponse.items[0];
-      const fetchYouTubeChannelResponse = await fetchYouTubeChannel(
-        youtubeVideo.snippet.channelId
-      );
-      if (fetchYouTubeChannelResponse.items.length === 1) {
-        const youtubeChannel = fetchYouTubeChannelResponse.items[0];
-        const channel = YouTubeToPrismaChannel(youtubeChannel);
+      const session = await prisma.session.findUnique({
+        where: { sessionToken: req.headers.authorization },
+      });
 
-        // Create the new channel in Prisma
-        const prismaChannel = await prisma.channel.upsert({
-          create: channel,
-          update: channel,
-          where: { id: channel.id },
-        });
+      if (session) {
+        const fetchYouTubeVideoResponse = await fetchYouTubeVideo(`${videoID}`);
 
-        if (prismaChannel.id === channel.id) {
-          const defaultFileJson = fetchFileJson(youtubeVideo.id);
-
-          // Create the new channel in Prisma
-          const video = YouTubeToPrismaVideo(
-            youtubeVideo,
-            channel,
-            defaultFileJson
+        if (fetchYouTubeVideoResponse.items.length === 1) {
+          const youtubeVideo = fetchYouTubeVideoResponse.items[0];
+          const fetchYouTubeChannelResponse = await fetchYouTubeChannel(
+            youtubeVideo.snippet.channelId
           );
+          if (fetchYouTubeChannelResponse.items.length === 1) {
+            const youtubeChannel = fetchYouTubeChannelResponse.items[0];
+            const channel = YouTubeToPrismaChannel(youtubeChannel);
 
-          downloadChannelThumbnail(
-            youtubeChannel.snippet.thumbnails.high.url,
-            channel.id
-          );
-
-          const prismaVideo = await prisma.video.upsert({
-            create: video,
-            update: video,
-            where: { id: video.id },
-          });
-
-          if (prismaVideo.id === video.id) {
-            res.status(200).json({message: "Success!"});
-            downloadVideoArchive(video.id).then(() => {
-              fileToUpdatePrisma(video.id);
+            // Create the new channel in Prisma
+            const prismaChannel = await prisma.channel.upsert({
+              create: channel,
+              update: channel,
+              where: { id: channel.id },
             });
+
+            if (prismaChannel.id === channel.id) {
+              const defaultFileJson = fetchFileJson(youtubeVideo.id);
+
+              // Create the new channel in Prisma
+              const video = YouTubeToPrismaVideo(
+                youtubeVideo,
+                channel,
+                defaultFileJson
+              );
+
+              downloadChannelThumbnail(
+                youtubeChannel.snippet.thumbnails.high.url,
+                channel.id
+              );
+
+              const prismaVideo = await prisma.video.upsert({
+                create: video,
+                update: video,
+                where: { id: video.id },
+              });
+
+              if (prismaVideo.id === video.id) {
+                res.status(200).json({ message: "Success!" });
+                downloadVideoArchive(video.id).then(() => {
+                  fileToUpdatePrisma(video.id);
+                });
+              } else {
+                res.status(500).json({
+                  message:
+                    "Internal error: the video entry couldn't be created in the database.",
+                });
+              }
+            } else {
+              res.status(500).json({
+                message:
+                  "Internal error: the channel entry couldn't be created in the database.",
+              });
+            }
           } else {
-            res.status(500).json({message: "Internal error: the video entry couldn't be created in the database."});
+            res.status(410).json({
+              message:
+                "Gone: The video exists, but YouTube can't find the channel... What?",
+            });
           }
         } else {
-          res.status(500).json({message: "Internal error: the channel entry couldn't be created in the database."});
+          res.status(410).json({
+            message:
+              "Gone: The target resource is no longer available at the origin. The video is either private, has been deleted, or the ID is unvalid.",
+          });
         }
       } else {
-        res.status(410).json({message: "Gone: The video exists, but YouTube can't find the channel... What?"});
+        res.status(403).json({
+          message:
+            "Forbidden: The provided Authorization header was not recognize. Please use a valid sessionId and the following format: Authorization: Bearer {sessionId}",
+        });
       }
     } else {
-      res.status(410).json({message: "Gone: The target resource is no longer available at the origin. The video is either private, has been deleted, or the ID is unvalid."
+      res.status(403).json({
+        message:
+          "Forbidden: You need to use the Authorization header (i.e., Authorization: Bearer {sessionId}).",
       });
     }
   } else {
-    res.status(405).json({message: "Method Not Allowed: The method received in the request-line is known by the origin server but not supported by the target resource."});
+    res.status(405).json({
+      message:
+        "Method Not Allowed: The method received in the request-line is known by the origin server but not supported by the target resource.",
+    });
   }
 }

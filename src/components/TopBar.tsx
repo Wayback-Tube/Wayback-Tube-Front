@@ -3,6 +3,8 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 export default function TopBar(): JSX.Element {
   const { data: session } = useSession();
@@ -68,6 +70,12 @@ export default function TopBar(): JSX.Element {
             dark_mode
           </span>
         </button>
+        <Link href="https://github.com/Wayback-Tube/Wayback-Tube-Front" passHref>
+          <button className="text-light-00dp dark:text-dark-emphasis dark:hover:text-dark-00dp">
+            <FontAwesomeIcon className="text-2xl" icon={faGithub} />
+          </button>
+        </Link>
+
         <Script src="/js/toggleTheme.js" />
       </div>
     </div>

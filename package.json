@@ -10,6 +10,10 @@
   "dependencies": {
     "@fontsource/be-vietnam-pro": "^4.5.1",
     "@fontsource/material-icons": "^4.5.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-brands-svg-icons": "^5.15.4",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/react-fontawesome": "^0.1.16",
     "@next-auth/prisma-adapter": "^1.0.1",
     "@prisma/client": "^3.7.0",
     "isarray": "^2.0.5",

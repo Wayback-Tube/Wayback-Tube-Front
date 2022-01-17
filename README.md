@@ -39,7 +39,7 @@ Very simple sign-in page by NextAuth.
 ![](doc/sign-in.png)
 
 ### API documentation
-API documentation using Swagger-UI to display the [OAS 3.0](https://swagger.io/resources/open-api/) swagger file.
+API documentation using Swagger-UI to display the [OAS 3.0](https://swagger.io/resources/open-api/) swagger file. The page is available at /api or /doc/api
 ![](doc/api.png)
 
 ## Technical Overview

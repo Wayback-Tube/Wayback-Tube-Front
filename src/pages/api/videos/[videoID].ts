@@ -86,7 +86,7 @@ export default async function handler(
               });
 
               if (prismaVideo.id === video.id) {
-                res.status(200).json({ message: "Success!" });
+                res.status(200).json({ message: "OK. The request has been fulfilled and the resource is now available." });
                 downloadVideoArchive(video.id).then(() => {
                   fileToUpdatePrisma(video.id);
                 });

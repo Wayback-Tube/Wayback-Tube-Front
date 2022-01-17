@@ -36,8 +36,8 @@ export default async function handler(
       });
       res.status(200).json(response);
     } else {
-      res.status(404).json({
-        message: "Not Found: No videos found.",
+      res.status(500).json({
+        message: "Internal error: There was a problem while retrieving videos from the database.",
       });
     }
   } else {

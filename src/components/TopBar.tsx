@@ -19,9 +19,10 @@ export default function TopBar(): JSX.Element {
 
   return (
     <div className="bg-light-02dp dark:bg-dark-02dp grid place-items-center grid-flow-col gap-2 p-4 shadow-lg fixed left-0 right-0 top-0 z-50">
-      <div className="h-10 aspect-[1863/510] cursor-pointer place-self-start">
+      <div className="h-10 cursor-pointer place-self-start">
         <Link href={"/"} passHref>
           <img
+            className="h-full"
             id="waytubeIcon"
             src="/img/logo-black.png"
             alt="Wayback Tube's logo"

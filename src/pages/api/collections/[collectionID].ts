@@ -31,7 +31,48 @@ export default async function handler(
       res.status(404).json(null);
     }
   } else if (req.method === "POST") {
-    //création de collections?
+    if (req.headers.authorization) {
+      if (req.headers.authorization.startsWith("Bearer "))
+        req.headers.authorization = req.headers.authorization.substring(
+          "Bearer ".length
+        );
+
+      const session = await prisma.session.findUnique({
+        where: { sessionToken: req.headers.authorization },
+      });
+
+      if (session) {
+        if (collectionID) {
+            // TODO : insert videos in collection
+        }
+        else {
+          const prismaCollection = await prisma.collection.create({
+            data: {
+              name: '',
+              userId: session.user.id,
+              user: session.user,
+            }
+          });
+        }
+      }
+    }
+  } else if (req.method === "DELETE") {
+    if (req.headers.authorization) {
+      if (req.headers.authorization.startsWith("Bearer "))
+        req.headers.authorization = req.headers.authorization.substring(
+          "Bearer ".length
+        );
+
+      const session = await prisma.session.findUnique({
+        where: { sessionToken: req.headers.authorization },
+      });
+
+      if (session) {
+        const deleteCollection = await prisma.collection.delete({
+          where: { id: `${collectionID}` },
+        });
+      }
+    }
   } else {
     res.status(404).json(null);
   }

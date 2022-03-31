@@ -31,15 +31,14 @@ export default function Watch({ video }: Props): JSX.Element {
 
   // Request video archival
   const [archiveId, setArchiveId] = useState<string | string[] | undefined>("");
-  const { data: dataPost, error: errorPost } = useSWR(
+  let { data: dataPost } = useSWR(
     archiveId ? [`/api/videos/${archiveId}`, session?.sessionToken] : null,
     fetcherPOST
   );
 
   const videoPreviews: APIVideoPreview[] = data;
   if (archiveId && dataPost) {
-    setArchiveId("");
-    archiveId = null;
+    setArchiveId(undefined);
     dataPost = null;
     router.push(`/watch/${router.query.videoID}`);
   }
@@ -102,7 +101,7 @@ export default function Watch({ video }: Props): JSX.Element {
       )}
 
       <div className="grid place-content-center">
-        <div className="grid grid-cols-[auto_auto] max-w-[110rem] gap-8 p-4 place-items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-[auto_auto] max-w-[110rem] gap-8 p-4 place-items-start">
           <div className="grid gap-4 ">
             <div className="bg-light-00dp dark:bg-dark-03dp shadow-lg rounded-xl">
               {video.id ? (

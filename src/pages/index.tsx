@@ -20,11 +20,10 @@ export default function Home(): JSX.Element {
           <div key={video.id} className="cursor-pointer">
             <Link href={video.watchUrl} passHref>
               <div className="grid gap-4">
-                <div className="grid relative rounded-md overflow-hidden aspect-video content-center">
+                <div className="grid relative rounded-md overflow-hidden aspect-video content-center shadow-inner">
                   {video.thumbnail ? (
                     <>
                       <img
-                        className="shadow-inner"
                         src={video.thumbnail.url}
                         alt={video.title}
                       />
